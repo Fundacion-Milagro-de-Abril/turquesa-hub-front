@@ -110,9 +110,10 @@ TH.api.plan = {
   },
   aCSV(plan) {
     const cab = ['Dimensión', 'Situación', 'Objetivo', 'Acción', 'Prioridad', 'Responsable', 'Fecha objetivo', 'Indicador', 'Meta', 'Evidencia esperada', 'Estado', 'Avance %', 'Evidencias registradas', 'Observaciones'];
+    const quitar = TH.config.auth.adaptador === 'supabase';   // sin el módulo de evidencias no hay columna «Evidencias registradas»
     const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
     const ev = plan ? TH.api.evidencias.listar(plan.orgId) : [];
-    const filas = (plan ? plan.acciones : []).map(a => [TH.util.nombreCatalogo(TH.data.instrumento.dimensiones, a.dim), a.situacion, a.objetivo, a.accion, TH.util.nombreCatalogo(TH.data.catalogos.prioridades, a.prioridad), a.responsable, a.fechaObjetivo, a.indicador, a.meta, a.evidencia, TH.util.nombreCatalogo(TH.data.catalogos.estadosAccion, a.estado), a.avance, ev.filter(e => e.accionId === a.id).length, a.observaciones].map(q).join(';'));
-    return '﻿' + cab.map(q).join(';') + '\n' + filas.join('\n');
+    const filas = (plan ? plan.acciones : []).map(a => [TH.util.nombreCatalogo(TH.data.instrumento.dimensiones, a.dim), a.situacion, a.objetivo, a.accion, TH.util.nombreCatalogo(TH.data.catalogos.prioridades, a.prioridad), a.responsable, a.fechaObjetivo, a.indicador, a.meta, a.evidencia, TH.util.nombreCatalogo(TH.data.catalogos.estadosAccion, a.estado), a.avance, ev.filter(e => e.accionId === a.id).length, a.observaciones].filter((_, i) => !(quitar && i === 12)).map(q).join(';'));
+    return '﻿' + (quitar ? cab.filter((_, i) => i !== 12) : cab).map(q).join(';') + '\n' + filas.join('\n');
   }
 };
