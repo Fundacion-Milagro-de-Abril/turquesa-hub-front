@@ -1,0 +1,27 @@
+name: CI
+
+# Pruebas del frontend (humo en desarrollo, integración en modo producción y paquete de producción).
+# Corre en cada push a main y en pull requests; pages.yml la usa como paso previo a publicar.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Pruebas del frontend
+        working-directory: tests
+        run: |
+          npm ci
+          npm test

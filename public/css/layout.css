@@ -1,0 +1,171 @@
+/* ============================================================
+   TURQUESA HUB · LAYOUT
+   Dos cascarones: público (cabecera + pie) y aplicación (menú lateral + barra superior).
+   Identidad: Manual Maestro FMA cap. 04/14/17 (endoso: «Turquesa Hub · Sello Turquesa»,
+   «Un servicio de Fundación Milagro de Abril»), cap. 06 (logo según fondo), cap. 09 (onda
+   solo en la apertura pública; páginas de trabajo sin onda) y cap. 21 (blanco dominante).
+   ============================================================ */
+
+/* ---------- Marca: nombre tipográfico de nivel 4 + endoso FMA con línea divisora (cap. 14) ---------- */
+.marca { display: inline-flex; align-items: center; gap: var(--th-sp-3); text-decoration: none; color: inherit; min-height: 44px; }
+.marca__texto { display: flex; flex-direction: column; line-height: 1.1; }
+.marca__nombre { font-family: var(--th-fuente-titulos); font-weight: 700; font-size: 1.125rem; color: var(--th-tinta); letter-spacing: -0.01em; white-space: nowrap; }
+.marca__sub { font-family: var(--th-fuente-titulos); font-size: var(--th-t-xs); font-weight: 500; color: var(--th-gris); white-space: nowrap; }
+.marca__linea { width: 1px; align-self: stretch; background: var(--th-linea-endoso); margin: 2px 0; }
+.marca__fma { height: 48px; width: auto; flex-shrink: 0; }
+.marca__fma-iso { display: none; height: 40px; width: 40px; flex-shrink: 0; }
+.marca--compacta .marca__fma { height: 40px; }
+.marca--inversa { flex-direction: column; align-items: flex-start; gap: var(--th-sp-3); }
+.marca--inversa .marca__nombre, .marca--inversa .marca__sub { color: #fff; }
+.marca--inversa .marca__linea { display: none; }
+.marca--inversa .marca__fma { height: 96px; }
+.endoso { display: inline-flex; align-items: center; gap: var(--th-sp-3); color: var(--th-gris); font-size: var(--th-t-xs); text-decoration: none; }
+.endoso__logo { height: 36px; width: auto; }
+.endoso--vertical { flex-direction: column; align-items: flex-start; gap: var(--th-sp-2); }
+.endoso--vertical .endoso__logo { height: 44px; }
+
+/* ---------- Cascarón público ---------- */
+.publico { min-height: 100vh; display: flex; flex-direction: column; background: var(--th-blanco); }
+.publico__header {
+  position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.94); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--th-borde);
+}
+.publico__header-inner {
+  max-width: var(--th-publico-max); margin: 0 auto; padding: var(--th-sp-2) var(--th-sp-5);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--th-sp-4); min-height: 68px;
+}
+.publico__nav { display: flex; align-items: center; gap: var(--th-sp-1); }
+.publico__nav a { font-family: var(--th-fuente-titulos); text-decoration: none; color: var(--th-tinta); padding: 10px var(--th-sp-3); border-radius: var(--th-radio-sm); font-weight: 500; font-size: var(--th-t-sm); min-height: 44px; display: inline-flex; align-items: center; }
+.publico__nav a:hover { color: var(--th-tinta); background: var(--th-tinte-turquesa); }
+.publico__nav a[aria-current="page"] { color: var(--th-turquesa-profundo); box-shadow: inset 0 -2px 0 var(--th-turquesa-sello); border-radius: 0; }
+.publico__nav a.btn--primario { color: #fff; background: var(--th-primario); margin-left: var(--th-sp-2); border-radius: var(--th-radio-sm); box-shadow: none; }
+.publico__nav a.btn--primario:hover { background: var(--th-primario-hover); color: #fff; }
+.publico__main { flex: 1; }
+
+/* Pie público: blanco/Nube, logo FMA original a color, descriptor tipográfico y cierre con eslogan (cap. 02 y 21) */
+.publico__footer { background: var(--th-nube); color: var(--th-texto); padding: var(--th-sp-8) var(--th-sp-5) var(--th-sp-6); margin-top: var(--th-sp-9); border-top: 1px solid var(--th-borde); }
+.publico__footer-inner { max-width: var(--th-publico-max); margin: 0 auto; display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: var(--th-sp-6); }
+.publico__footer h4 { font-size: var(--th-t-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--th-violeta-texto); margin-bottom: var(--th-sp-3); }
+.publico__footer a:not(.endoso) { color: var(--th-tinta); text-decoration: none; display: block; margin-bottom: var(--th-sp-2); font-size: var(--th-t-sm); }
+.publico__footer a:not(.endoso):hover { color: var(--th-violeta-texto); text-decoration: underline; }
+.publico__footer-fma { display: flex; flex-direction: column; gap: var(--th-sp-3); align-items: flex-start; }
+.publico__footer-fma img { height: 52px; width: auto; }
+.publico__footer-descriptor { font-family: var(--th-fuente-titulos); font-size: var(--th-t-sm); line-height: 1.3; color: var(--th-tinta); }
+.publico__footer-descriptor strong { display: block; font-size: var(--th-t-xs); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+.publico__footer-cierre { max-width: var(--th-publico-max); margin: var(--th-sp-6) auto 0; padding-top: var(--th-sp-4); border-top: 1px solid var(--th-borde); display: flex; justify-content: space-between; align-items: center; gap: var(--th-sp-4); flex-wrap: wrap; }
+.publico__footer-eslogan { font-family: var(--th-fuente-cita); font-style: italic; font-size: var(--th-t-lg); color: var(--th-violeta-texto); margin: 0; }
+.publico__footer-legal { font-size: var(--th-t-xs); color: var(--th-gris); max-width: 72ch; margin: 0; }
+
+.seccion { max-width: var(--th-publico-max); margin: 0 auto; padding: var(--th-sp-9) var(--th-sp-5); }
+.seccion--compacta { padding: var(--th-sp-6) var(--th-sp-5); }
+.seccion--suave { background: var(--th-nube); }
+.seccion__encabezado { max-width: 720px; margin-bottom: var(--th-sp-6); }
+.seccion__encabezado > h1::after, .seccion__encabezado > h2::after { content: ""; display: block; width: 48px; height: 3px; border-radius: 2px; background: var(--th-filete); margin-top: var(--th-sp-3); }
+.seccion__eyebrow { font-family: var(--th-fuente-titulos); color: var(--th-violeta-texto); font-weight: 600; font-size: var(--th-t-xs); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: var(--th-sp-2); }
+
+/* Portada pública: franja cromática con onda contenida (recurso dominante único, cap. 09),
+   solo texto grande en blanco (cap. 07); el resto del contenido sobre blanco. */
+.portada__banda { position: relative; color: #fff; background: linear-gradient(100deg, var(--th-turquesa-profundo) 0%, var(--th-turquesa-sello) 42%, var(--th-violeta) 100%); padding: var(--th-sp-9) 0 calc(var(--th-sp-9) + 36px); overflow: hidden; }
+.portada__banda-inner { max-width: var(--th-publico-max); margin: 0 auto; padding: 0 var(--th-sp-5); }
+.portada__eyebrow { font-family: var(--th-fuente-titulos); font-weight: 700; font-size: 1.25rem; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 var(--th-sp-3); color: #fff; }
+.portada__banda h1 { color: #fff; font-size: var(--th-t-4xl); font-weight: 700; margin-bottom: var(--th-sp-3); letter-spacing: -0.01em; }
+.portada__lead { font-family: var(--th-fuente-titulos); font-weight: 500; font-size: 1.5rem; line-height: 1.35; max-width: 30ch; margin: 0; color: #fff; }
+.onda { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 44px; display: block; }
+.portada__cuerpo { max-width: var(--th-publico-max); margin: 0 auto; padding: var(--th-sp-7) var(--th-sp-5) var(--th-sp-5); display: grid; grid-template-columns: 1.1fr 0.9fr; gap: var(--th-sp-8); align-items: start; }
+.portada__cuerpo .seccion__eyebrow { margin-bottom: var(--th-sp-3); }
+.portada__texto { font-size: var(--th-t-lg); color: var(--th-texto); max-width: 58ch; }
+.hero__acciones { display: flex; gap: var(--th-sp-3); flex-wrap: wrap; margin-top: var(--th-sp-5); }
+.hero__nota { font-size: var(--th-t-sm); color: var(--th-gris); margin-top: var(--th-sp-4); max-width: 60ch; }
+
+/* Diagrama modular (cap. 21: contenedores + filetes, sin estética tecnológica) */
+.diagrama { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--th-sp-3); }
+.diagrama__paso { background: var(--th-blanco); border: 1px solid var(--th-borde); border-radius: var(--th-radio); padding: var(--th-sp-4); border-top: 4px solid var(--th-turquesa-sello); }
+.diagrama__paso--profundo { border-top-color: var(--th-turquesa-profundo); }
+.diagrama__paso--violeta { border-top-color: var(--th-violeta); }
+.diagrama__paso--ciruela { border-top-color: var(--th-ciruela); }
+.diagrama__num { font-family: var(--th-fuente-titulos); font-size: var(--th-t-xs); font-weight: 600; letter-spacing: 0.12em; color: var(--th-gris); text-transform: uppercase; }
+.diagrama__paso h3 { font-size: var(--th-t-md); font-weight: 600; margin: var(--th-sp-1) 0 var(--th-sp-1); }
+.diagrama__paso p { font-size: var(--th-t-sm); color: var(--th-gris); margin: 0; }
+.diagrama__pie { grid-column: 1 / -1; text-align: center; font-family: var(--th-fuente-titulos); font-size: var(--th-t-xs); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--th-turquesa-profundo); padding-top: var(--th-sp-1); }
+
+/* Bloque institucional FMA (definición oficial e idea central, cap. 01 y 02) */
+.bloque-fma { background: var(--th-blanco); border: 1px solid var(--th-borde); border-radius: var(--th-radio-lg); padding: var(--th-sp-5); }
+.bloque-fma__logo { height: 56px; width: auto; margin-bottom: var(--th-sp-4); }
+
+/* Página de acceso: lateral en Turquesa Profundo con logo FMA en blanco (cap. 06 · fondo oscuro) */
+.acceso { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+.acceso__lateral { background: var(--th-turquesa-profundo); color: #fff; padding: var(--th-sp-8); display: flex; flex-direction: column; justify-content: space-between; }
+.acceso__lateral h2 { color: #fff; font-size: var(--th-t-2xl); }
+.acceso__lateral p { color: #fff; }
+.acceso__lateral a { color: #fff; }
+.acceso__logo { height: 120px; width: auto; }
+.acceso__contenido { display: flex; align-items: center; justify-content: center; padding: var(--th-sp-8) var(--th-sp-5); background: var(--th-blanco); }
+.acceso__caja { width: 100%; max-width: 480px; }
+
+/* ---------- Cascarón de aplicación (páginas de trabajo: sin onda, blanco y Nube) ---------- */
+.app { display: grid; grid-template-columns: var(--th-sidebar) minmax(0, 1fr); min-height: 100vh; }
+.sidebar {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  background: var(--th-blanco); border-right: 1px solid var(--th-borde);
+  display: flex; flex-direction: column; padding: var(--th-sp-4) var(--th-sp-3);
+}
+.sidebar__marca { padding: var(--th-sp-2) var(--th-sp-2) var(--th-sp-4); border-bottom: 1px solid var(--th-borde); margin-bottom: var(--th-sp-3); }
+.sidebar__espacio {
+  display: flex; align-items: center; gap: var(--th-sp-2); font-family: var(--th-fuente-titulos); font-size: var(--th-t-xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--th-gris); padding: var(--th-sp-2) var(--th-sp-2) var(--th-sp-3);
+}
+.sidebar__espacio::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--th-perfil, var(--th-turquesa-sello)); }
+.sidebar__nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.sidebar__grupo { font-family: var(--th-fuente-titulos); font-size: var(--th-t-xs); color: var(--th-gris); text-transform: uppercase; letter-spacing: 0.1em; padding: var(--th-sp-4) var(--th-sp-2) var(--th-sp-1); }
+.sidebar__nav a {
+  display: flex; align-items: center; gap: var(--th-sp-3); padding: 10px var(--th-sp-3); border-radius: var(--th-radio-sm); min-height: 44px;
+  color: var(--th-tinta); text-decoration: none; font-family: var(--th-fuente-titulos); font-size: var(--th-t-sm); font-weight: 500;
+}
+.sidebar__nav a:hover { background: var(--th-nube); color: var(--th-tinta); }
+.sidebar__nav a[aria-current="page"] { background: var(--th-tinte-turquesa); color: var(--th-tinta); font-weight: 600; box-shadow: inset 3px 0 0 var(--th-turquesa-sello); }
+.sidebar__nav a .icono { width: 20px; height: 20px; flex-shrink: 0; color: var(--th-turquesa-profundo); }
+.sidebar__pie { border-top: 1px solid var(--th-borde); padding: var(--th-sp-4) var(--th-sp-2) 0; margin-top: var(--th-sp-3); font-size: var(--th-t-xs); color: var(--th-gris); display: flex; flex-direction: column; gap: var(--th-sp-3); }
+.sidebar__pie a { color: var(--th-gris); }
+
+.contenido { display: flex; flex-direction: column; min-width: 0; }
+.topbar {
+  height: var(--th-topbar); display: flex; align-items: center; justify-content: space-between; gap: var(--th-sp-4);
+  padding: 0 var(--th-sp-6); background: var(--th-blanco); border-bottom: 1px solid var(--th-borde); position: sticky; top: 0; z-index: 40;
+}
+.topbar__izq { display: flex; align-items: center; gap: var(--th-sp-3); min-width: 0; }
+.topbar__titulo { font-family: var(--th-fuente-titulos); font-weight: 600; font-size: var(--th-t-md); }
+.topbar__der { display: flex; align-items: center; gap: var(--th-sp-3); }
+.topbar__usuario { display: flex; align-items: center; gap: var(--th-sp-2); font-size: var(--th-t-sm); }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-family: var(--th-fuente-titulos); font-weight: 600; font-size: var(--th-t-sm); background: var(--th-turquesa-profundo); color: #fff; flex-shrink: 0; }
+.avatar--violeta { background: var(--th-violeta-texto); color: #fff; }
+.avatar--naranja { background: var(--th-ambar); color: var(--th-tinta); }
+.topbar__usuario-datos { display: flex; flex-direction: column; line-height: 1.2; }
+.topbar__usuario-datos small { color: var(--th-gris); }
+.menu-movil-btn { display: none; }
+
+.main { padding: var(--th-sp-6); max-width: var(--th-contenido-max); width: 100%; margin: 0 auto; flex: 1; }
+.main--ancho { max-width: none; }
+
+.encabezado-pagina { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--th-sp-4); margin-bottom: var(--th-sp-5); flex-wrap: wrap; }
+.encabezado-pagina h1 { font-size: var(--th-t-2xl); margin-bottom: var(--th-sp-2); }
+.encabezado-pagina h1::after { content: ""; display: block; width: 40px; height: 3px; border-radius: 2px; background: var(--th-filete); margin-top: var(--th-sp-2); }
+.encabezado-pagina__desc { color: var(--th-gris); max-width: 70ch; }
+.encabezado-pagina__acciones { display: flex; gap: var(--th-sp-2); flex-wrap: wrap; }
+
+.migas { display: flex; flex-wrap: wrap; gap: var(--th-sp-1); font-size: var(--th-t-sm); color: var(--th-gris); margin-bottom: var(--th-sp-3); list-style: none; padding: 0; }
+.migas li + li::before { content: "/"; margin: 0 var(--th-sp-2); color: var(--th-gris); }
+.migas a { color: var(--th-gris); text-decoration: none; }
+.migas a:hover { text-decoration: underline; }
+
+/* Overlay de menú móvil */
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(43,44,64,0.45); z-index: 60; }
+.app.menu-abierto .sidebar-overlay { display: block; }
+
+/* Aviso de servicio no disponible (producción, páginas públicas) */
+.publico__aviso { max-width: var(--th-publico-max); margin: var(--th-sp-4) auto 0; padding: 0 var(--th-sp-5); }
+
+/* Sello Turquesa: imagotipo completo con endoso verbal (cap. 17) */
+.sello-marca { display: flex; align-items: center; gap: var(--th-sp-5); padding: var(--th-sp-4) var(--th-sp-5); background: var(--th-blanco); border: 1px solid var(--th-borde); border-radius: var(--th-radio-lg); margin-bottom: var(--th-sp-5); flex-wrap: wrap; }
+.sello-marca__logo { height: 72px; width: auto; }
+.sello-marca__texto { border-left: 1px solid var(--th-linea-endoso); padding-left: var(--th-sp-5); font-size: var(--th-t-sm); color: var(--th-gris); }
+.sello-marca__texto strong { display: block; color: var(--th-tinta); font-family: var(--th-fuente-titulos); font-weight: 600; }

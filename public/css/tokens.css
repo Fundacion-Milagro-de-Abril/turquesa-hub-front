@@ -1,0 +1,151 @@
+/* ============================================================
+   TURQUESA HUB · TOKENS DE DISEÑO
+   Identidad aplicada según el Manual Maestro de Marca FMA 2026–2030,
+   versión 1.1 (septiembre de 2026): cap. 07 Color, cap. 08 Tipografía,
+   cap. 09 Sistema gráfico, cap. 13 Accesibilidad digital.
+   Turquesa Hub es un activo de nivel 4 subordinado al Sello Turquesa
+   (cap. 04, 14 y 17): no desarrolla universo gráfico propio; usa la
+   paleta, las tipografías y los recursos institucionales.
+   ============================================================ */
+:root {
+  /* --- Primarios institucionales (cap. 07 · tabla técnica cap. 30) --- */
+  --th-turquesa-sello: #17A2B8;      /* identidad · superficies, gráficos, filetes · texto blanco solo grande */
+  --th-turquesa-profundo: #0B7F95;   /* trabajo/legibilidad · botones, titulares de apoyo, íconos (4.68:1 con blanco) */
+  --th-turquesa-brillante: #43CBFF;  /* acento/energía · con texto Tinta (7.30:1) */
+  --th-violeta: #736EFE;             /* identidad · acento, degradado · texto blanco solo grande */
+  --th-violeta-texto: #5B54C9;       /* texto · enlaces, etiquetas, foco (5.90:1 con blanco) */
+
+  /* --- Secundarios y acentos (calidez · programas · datos) --- */
+  --th-aguamarina: #5EFCE8;
+  --th-coral: #F0645F;               /* riesgo / error · solo como borde, punto o fondo con texto Tinta */
+  --th-naranja: #FF7F30;
+  --th-ambar: #FFBE00;               /* precaución / en proceso · con texto Tinta (8.21:1) */
+  --th-ciruela: #7A4A86;             /* texto admitido (6.66:1) */
+  --th-magenta: #E84C8A;
+  --th-verde-teal: #3FBFA0;          /* en meta / éxito · solo como borde, punto o fondo con texto Tinta (5.97:1) */
+
+  /* --- Neutros --- */
+  --th-tinta: #2B2C40;               /* texto */
+  --th-gris: #6A6C82;                /* texto secundario (5.15:1 blanco · 4.73:1 Nube) */
+  --th-nube: #F4F5FB;                /* fondo */
+  --th-crema: #FBF7F0;               /* fondo cálido */
+  --th-blanco: #FFFFFF;
+  --th-linea-endoso: #C9CCDB;        /* línea divisora del endoso (cap. 14) · bordes fuertes */
+
+  /* --- Tintes derivados (color oficial al 10 % sobre blanco): superficies de apoyo con texto Tinta (≥ 11:1) --- */
+  --th-tinte-turquesa: #E8F6F8;
+  --th-tinte-profundo: #E7F2F4;
+  --th-tinte-brillante: #ECFAFF;
+  --th-tinte-violeta: #F1F0FF;
+  --th-tinte-teal: #ECF9F6;
+  --th-tinte-ambar: #FFF8E6;
+  --th-tinte-coral: #FEF0EF;
+  --th-tinte-naranja: #FFF2EA;
+  --th-tinte-ciruela: #F2EDF3;
+  --th-tinte-gris: #F0F0F2;
+
+  /* --- Degradado FMA (turquesa → violeta): acento, nunca fondo permanente; solo texto grande en blanco --- */
+  --th-degradado: linear-gradient(100deg, var(--th-turquesa-sello) 0%, var(--th-violeta) 100%);
+  --th-filete: linear-gradient(90deg, var(--th-turquesa-sello), var(--th-violeta));
+
+  /* --- Roles de color --- */
+  --th-fondo: var(--th-nube);
+  --th-texto: var(--th-tinta);
+  --th-texto-2: var(--th-gris);
+  --th-texto-3: var(--th-gris);
+  --th-borde: #E3E5F0;
+  --th-borde-fuerte: var(--th-linea-endoso);
+  --th-borde-control: #88899B;       /* bordes de campos (≈3.3:1, WCAG 1.4.11) */
+  --th-superficie-2: var(--th-nube);
+  --th-primario: var(--th-turquesa-profundo);
+  --th-primario-hover: #0A7083;      /* Turquesa Profundo −12 % (estado de interacción) */
+  --th-primario-suave: var(--th-tinte-turquesa);
+  --th-acento: var(--th-violeta-texto);
+  --th-acento-hover: #504AB1;        /* Violeta Texto −12 % (estado de interacción) */
+  --th-acento-suave: var(--th-tinte-violeta);
+  --th-enlace: var(--th-violeta-texto);
+  --th-foco: var(--th-violeta-texto);
+  --th-destacado: var(--th-ambar);
+  --th-destacado-suave: var(--th-tinte-ambar);
+
+  /* Semánticos: el color va en el borde/punto; el texto es Tinta (semáforo accesible, cap. 12) */
+  --th-exito: var(--th-verde-teal);
+  --th-exito-suave: var(--th-tinte-teal);
+  --th-alerta: var(--th-ambar);
+  --th-alerta-suave: var(--th-tinte-ambar);
+  --th-error: var(--th-coral);
+  --th-error-suave: var(--th-tinte-coral);
+  --th-info: var(--th-turquesa-sello);
+  --th-info-suave: var(--th-tinte-brillante);
+
+  /* Alias de compatibilidad (vistas) */
+  --th-turquesa: var(--th-turquesa-sello);
+  --th-turquesa-oscuro: var(--th-turquesa-profundo);
+  --th-turquesa-suave: var(--th-tinte-turquesa);
+  --th-violeta-suave: var(--th-tinte-violeta);
+  --th-naranja-suave: var(--th-tinte-naranja);
+  --th-turquesa-texto: var(--th-turquesa-profundo);
+  --th-naranja-texto: var(--th-ciruela);
+
+  /* Colores por perfil (punto del espacio en el menú lateral) */
+  --th-perfil-organizacion: var(--th-turquesa-sello);
+  --th-perfil-colaborador: var(--th-ambar);
+  --th-perfil-fma: var(--th-violeta-texto);
+
+  /* Gráficos (secuencia categórica · cap. 12) */
+  --th-g1: var(--th-turquesa-sello);
+  --th-g2: var(--th-violeta);
+  --th-g3: var(--th-verde-teal);
+  --th-g4: var(--th-ciruela);
+  --th-g5: var(--th-ambar);
+  --th-g6: var(--th-coral);
+
+  /* --- Tipografía (cap. 08): Poppins · Lora · Nunito Sans; sustitutas Segoe UI/Calibri · Georgia/Cambria --- */
+  --th-fuente-titulos: "Poppins", "Segoe UI", Calibri, system-ui, sans-serif;   /* identidad, títulos, datos, UI */
+  --th-fuente: "Nunito Sans", Calibri, "Segoe UI", system-ui, sans-serif;        /* cuerpo, formularios, materiales */
+  --th-fuente-cita: "Lora", Georgia, Cambria, "Times New Roman", serif;          /* destacados y citas */
+  --th-fuente-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  --th-t-xs: 0.75rem;   /* 12 · mínimo absoluto */
+  --th-t-sm: 0.875rem;  /* 14 · etiquetas, metadatos, UI compacta */
+  --th-t-md: 1rem;      /* 16 · cuerpo de lectura */
+  --th-t-lg: 1.125rem;  /* 18 */
+  --th-t-xl: 1.375rem;  /* 22 */
+  --th-t-2xl: 1.75rem;  /* 28 */
+  --th-t-3xl: 2.25rem;  /* 36 */
+  --th-t-4xl: 2.875rem; /* 46 · display */
+  --th-lh: 1.55;
+
+  /* --- Retícula de 8 pt --- */
+  --th-sp-1: 4px;
+  --th-sp-2: 8px;
+  --th-sp-3: 12px;
+  --th-sp-4: 16px;
+  --th-sp-5: 24px;
+  --th-sp-6: 32px;
+  --th-sp-7: 40px;
+  --th-sp-8: 48px;
+  --th-sp-9: 64px;
+  --th-sp-10: 96px;
+
+  /* --- Contenedores (cap. 09): esquinas suaves, bordes finos, sombras mínimas --- */
+  --th-radio-sm: 8px;
+  --th-radio: 12px;
+  --th-radio-lg: 16px;
+  --th-radio-pill: 999px;
+  --th-sombra-sm: 0 1px 2px rgba(43, 44, 64, 0.05);
+  --th-sombra: 0 2px 10px rgba(43, 44, 64, 0.08);
+  --th-sombra-lg: 0 10px 28px rgba(43, 44, 64, 0.14);
+
+  /* --- Layout --- */
+  --th-sidebar: 268px;
+  --th-topbar: 64px;
+  --th-contenido-max: 1200px;
+  --th-publico-max: 1160px;
+
+  /* --- Movimiento --- */
+  --th-transicion: 160ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --th-transicion: 0ms; }
+}

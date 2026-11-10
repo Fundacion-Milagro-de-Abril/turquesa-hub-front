@@ -1,0 +1,86 @@
+/* ============================================================
+   TURQUESA HUB · RESPONSIVE
+   Puntos de corte: escritorio ≥ 1024, tableta 768–1023, móvil ≤ 767.
+   ============================================================ */
+
+@media (max-width: 1100px) {
+  .grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .kanban { grid-template-columns: repeat(5, 220px); }
+}
+
+@media (max-width: 1023px) {
+  :root { --th-sidebar: 240px; }
+  .app { grid-template-columns: 1fr; }
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: var(--th-sidebar); transform: translateX(-100%);
+    transition: transform 200ms ease; z-index: 70; box-shadow: var(--th-sombra-lg);
+  }
+  .app.menu-abierto .sidebar { transform: none; }
+  .menu-movil-btn { display: inline-flex; }
+  .topbar { padding: 0 var(--th-sp-4); }
+  .main { padding: var(--th-sp-5) var(--th-sp-4); }
+  .grid-3 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .grid-sidebar { grid-template-columns: 1fr; }
+  .portada__cuerpo { grid-template-columns: 1fr; gap: var(--th-sp-6); }
+  .portada__banda h1 { font-size: var(--th-t-3xl); }
+  .publico__footer-inner { grid-template-columns: 1fr 1fr; }
+  .acceso { grid-template-columns: 1fr; }
+  .acceso__lateral { padding: var(--th-sp-6) var(--th-sp-5); }
+  .dimension-fila { grid-template-columns: 1fr; gap: var(--th-sp-2); }
+  .topbar__usuario-datos { display: none; }
+}
+
+@media (max-width: 767px) {
+  h1 { font-size: var(--th-t-2xl); }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .form-fila, .form-fila--3 { grid-template-columns: 1fr; }
+  .publico__nav { display: none; }
+  .publico__nav.es-visible { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--th-blanco); border-bottom: 1px solid var(--th-borde); padding: var(--th-sp-3); }
+  .publico__menu-btn { display: inline-flex; }
+  .seccion { padding: var(--th-sp-7) var(--th-sp-4); }
+  .portada__banda { padding: var(--th-sp-7) 0 calc(var(--th-sp-7) + 28px); }
+  .portada__banda-inner, .portada__cuerpo { padding-left: var(--th-sp-4); padding-right: var(--th-sp-4); }
+  .portada__banda h1 { font-size: var(--th-t-3xl); }
+  .portada__eyebrow { font-size: 1.1875rem; letter-spacing: 0.08em; }
+  .portada__lead { font-size: 1.5rem; }
+  .onda { height: 28px; }
+  .diagrama { grid-template-columns: 1fr; }
+  /* En piezas muy pequeñas la versión horizontal pierde legibilidad: se usa el isotipo oficial (cap. 06) */
+  .marca__fma { display: none; }
+  .marca__fma-iso { display: block; }
+  .marca__nombre { font-size: 1rem; }
+  .publico__footer-inner { grid-template-columns: 1fr; }
+  .publico__footer-cierre { flex-direction: column; align-items: flex-start; }
+  .sello-marca__texto { border-left: 0; padding-left: 0; }
+  .encabezado-pagina { flex-direction: column; }
+  .encabezado-pagina__acciones .btn { flex: 1; }
+  .card { padding: var(--th-sp-4); }
+  .pregunta { padding: var(--th-sp-4); }
+  .pregunta__texto { font-size: var(--th-t-lg); }
+  .tarjeta-aprendizaje { padding: var(--th-sp-4); }
+  .modulo-card { grid-template-columns: 1fr; }
+  .toast-root { left: var(--th-sp-3); right: var(--th-sp-3); bottom: var(--th-sp-3); max-width: none; }
+  .modal__cuerpo, .modal__encabezado, .modal__pie { padding-left: var(--th-sp-4); padding-right: var(--th-sp-4); }
+  .filtros .campo { min-width: 100%; }
+  .stepper li { font-size: 0; }
+  .stepper li::after { content: attr(data-corto); font-size: var(--th-t-xs); }
+  .grafico-barras__fila { grid-template-columns: 1fr 48px; }
+  .grafico-barras__fila > :first-child { grid-column: 1 / -1; }
+  .kpi__valor { font-size: var(--th-t-xl); }
+  .tabla { min-width: 520px; }
+  .siguiente-paso { flex-direction: column; align-items: flex-start; }
+  .btn-grupo-movil { display: flex; flex-direction: column; gap: var(--th-sp-2); }
+  .btn-grupo-movil .btn { width: 100%; }
+}
+
+@media (min-width: 768px) {
+  .publico__menu-btn { display: none; }
+}
+
+/* Barra superior en pantallas pequeñas */
+@media (max-width: 767px) {
+  .topbar__izq { flex: 1; min-width: 0; }
+  .topbar__titulo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--th-t-sm); }
+  .topbar__der .btn--terciario { display: none; }
+  .topbar__der .btn--secundario .icono + * , .topbar__der .btn--secundario { padding-left: 10px; padding-right: 10px; }
+}

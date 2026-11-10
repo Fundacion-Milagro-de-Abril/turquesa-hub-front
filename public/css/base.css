@@ -1,0 +1,97 @@
+/* ============================================================
+   TURQUESA HUB · BASE
+   Reset ligero, tipografía institucional (Poppins · Nunito Sans · Lora),
+   foco accesible, utilidades. Manual Maestro FMA cap. 08 y 13.
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: 100%; -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--th-fuente);
+  font-size: var(--th-t-md);
+  line-height: var(--th-lh);
+  color: var(--th-texto);
+  background: var(--th-fondo);
+  -webkit-font-smoothing: antialiased;
+}
+/* Jerarquía: Display/H1 Poppins Bold · H2 SemiBold · H3 Medium (escala del cap. 08) */
+h1, h2, h3, h4, h5 { margin: 0 0 var(--th-sp-3); font-family: var(--th-fuente-titulos); line-height: 1.22; color: var(--th-texto); letter-spacing: -0.005em; }
+h1 { font-size: var(--th-t-3xl); font-weight: 700; }
+h2 { font-size: var(--th-t-2xl); font-weight: 600; }
+h3 { font-size: var(--th-t-xl); font-weight: 600; }
+h4 { font-size: var(--th-t-lg); font-weight: 500; }
+h5 { font-size: var(--th-t-md); font-weight: 500; }
+p { margin: 0 0 var(--th-sp-4); }
+p:last-child { margin-bottom: 0; }
+a { color: var(--th-enlace); text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+a:hover { color: var(--th-acento-hover); }
+ul, ol { margin: 0 0 var(--th-sp-4); padding-left: var(--th-sp-5); }
+li { margin-bottom: var(--th-sp-1); }
+small, .texto-sm { font-size: var(--th-t-sm); }
+.texto-xs { font-size: var(--th-t-xs); }
+.texto-2 { color: var(--th-texto-2); }
+.texto-3 { color: var(--th-texto-3); }
+strong { font-weight: 700; }
+hr { border: 0; border-top: 1px solid var(--th-borde); margin: var(--th-sp-5) 0; }
+img, svg { max-width: 100%; height: auto; display: block; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; font-family: var(--th-fuente-titulos); }
+code { font-family: var(--th-fuente-mono); font-size: 0.9em; background: var(--th-superficie-2); padding: 1px 6px; border-radius: 4px; }
+table { border-collapse: collapse; width: 100%; }
+fieldset { border: 0; padding: 0; margin: 0 0 var(--th-sp-5); min-width: 0; }
+legend { padding: 0; font-family: var(--th-fuente-titulos); font-weight: 600; margin-bottom: var(--th-sp-2); }
+
+/* Destacado / cita: Lora Italic con filete lateral turquesa (cap. 08 y 09) */
+blockquote, .cita {
+  margin: 0 0 var(--th-sp-4); padding: var(--th-sp-1) 0 var(--th-sp-1) var(--th-sp-4);
+  border-left: 3px solid var(--th-turquesa-sello);
+  font-family: var(--th-fuente-cita); font-style: italic; font-size: var(--th-t-lg); line-height: 1.5; color: var(--th-violeta-texto);
+}
+.cita--tinta { color: var(--th-texto); }
+
+/* Filete cromático: línea corta turquesa → violeta bajo los títulos (cap. 09 y 21) */
+.filete { display: block; width: 48px; height: 3px; border-radius: 2px; background: var(--th-filete); margin: var(--th-sp-3) 0 var(--th-sp-4); }
+.filete--centrado { margin-left: auto; margin-right: auto; }
+
+/* Texto de riesgo: el color va en el marcador, el texto permanece en Tinta (cap. 12 · semáforo accesible) */
+.texto-riesgo { color: var(--th-texto); font-weight: 700; white-space: nowrap; }
+.texto-riesgo::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--th-coral); margin-right: 6px; vertical-align: 1px; }
+
+/* Foco visible (WCAG 2.4.7 / 2.4.11 · cap. 13: contorno ≥ 2 px, contraste ≥ 3:1) */
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--th-foco); outline-offset: 2px; border-radius: 4px; }
+
+/* Enlace de salto */
+.skip-link {
+  position: absolute; top: -60px; left: var(--th-sp-4);
+  background: var(--th-tinta); color: #fff; padding: var(--th-sp-2) var(--th-sp-4);
+  border-radius: var(--th-radio-sm); z-index: 1000; text-decoration: none; font-family: var(--th-fuente-titulos); font-weight: 600;
+}
+.skip-link:focus { top: var(--th-sp-2); }
+
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* Utilidades de espaciado y disposición */
+.mt-1 { margin-top: var(--th-sp-1); } .mt-2 { margin-top: var(--th-sp-2); } .mt-3 { margin-top: var(--th-sp-3); }
+.mt-4 { margin-top: var(--th-sp-4); } .mt-5 { margin-top: var(--th-sp-5); } .mt-6 { margin-top: var(--th-sp-6); }
+.mb-0 { margin-bottom: 0; } .mb-2 { margin-bottom: var(--th-sp-2); } .mb-3 { margin-bottom: var(--th-sp-3); }
+.mb-4 { margin-bottom: var(--th-sp-4); } .mb-5 { margin-bottom: var(--th-sp-5); } .mb-6 { margin-bottom: var(--th-sp-6); }
+.flex { display: flex; } .flex-col { flex-direction: column; } .wrap { flex-wrap: wrap; }
+.items-center { align-items: center; } .items-start { align-items: flex-start; }
+.justify-between { justify-content: space-between; } .justify-end { justify-content: flex-end; } .justify-center { justify-content: center; }
+.gap-1 { gap: var(--th-sp-1); } .gap-2 { gap: var(--th-sp-2); } .gap-3 { gap: var(--th-sp-3); } .gap-4 { gap: var(--th-sp-4); } .gap-5 { gap: var(--th-sp-5); }
+.grow { flex: 1 1 auto; } .shrink-0 { flex-shrink: 0; }
+.grid { display: grid; gap: var(--th-sp-4); }
+.grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.grid-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+.grid-sidebar { grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr); }
+.text-center { text-align: center; } .text-right { text-align: right; }
+.w-full { width: 100%; }
+.hidden { display: none !important; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.max-w-prose { max-width: 70ch; }
+.noscript { padding: var(--th-sp-6); text-align: center; }

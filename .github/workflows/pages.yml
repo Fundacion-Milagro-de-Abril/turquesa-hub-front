@@ -1,0 +1,40 @@
+name: Publicar sitio
+
+# Al fusionar en main: ejecuta las pruebas, construye el paquete de producción (dist/) y lo publica en GitHub Pages.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  pruebas:
+    uses: ./.github/workflows/ci.yml
+
+  publicar:
+    needs: pruebas
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Construir el paquete de producción
+        run: node tools/build.js produccion
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: despliegue
+        uses: actions/deploy-pages@v4

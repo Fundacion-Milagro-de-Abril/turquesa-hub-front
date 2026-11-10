@@ -1,0 +1,29 @@
+/* ============================================================
+   TURQUESA HUB · IMPRESIÓN / EXPORTACIÓN A PDF
+   Sistema editorial FMA (cap. 21): blanco dominante, logo FMA original a color en el
+   encabezado, filete cromático, onda solo como franja fina al pie. Los reportes y
+   constancias se exportan con "Imprimir → Guardar como PDF".
+   ============================================================ */
+@page { margin: 18mm 16mm; }
+body { background: #fff; color: #2B2C40; font-size: 11pt; font-family: "Nunito Sans", Calibri, "Segoe UI", sans-serif; }
+h1, h2, h3, h4 { font-family: "Poppins", "Segoe UI", Calibri, sans-serif; color: #2B2C40; }
+.sidebar, .topbar, .toast-root, #modal-root, .skip-link, .no-imprimir, .encabezado-pagina__acciones, .sidebar-overlay, .publico__header, .publico__footer, .publico__aviso { display: none !important; }
+.app { display: block; }
+.main { max-width: none; padding: 0; }
+/* Membrete: logo FMA a color + filete cromático que no pasa por detrás del logo */
+.main::before, .publico__main::before {
+  content: ""; display: block; width: 46mm; height: 18mm; margin-bottom: 4mm;
+  background: url("../assets/branding/fma-logo-horizontal.png") no-repeat left center; background-size: contain;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.main::after, .publico__main::after { content: ""; display: block; height: 1.2mm; margin-top: 8mm; border-radius: 1mm; background: linear-gradient(90deg, #17A2B8, #736EFE); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.card, .kpi, .tabla-contenedor, .criterio, .pregunta, .constancia { box-shadow: none; border: 1px solid #C9CCDB; break-inside: avoid; }
+.reporte__portada { border-bottom: 2px solid #0B7F95; padding-bottom: 8mm; margin-bottom: 8mm; }
+.reporte__seccion { break-inside: avoid; margin-bottom: 8mm; }
+.encabezado-pagina h1::after, .seccion__encabezado > h1::after, .seccion__encabezado > h2::after { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.progreso { border: 1px solid #C9CCDB; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.progreso__barra, .badge, .kpi, .card--suave, .alerta, .constancia__logo, .badge::before { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+a { color: #2B2C40; text-decoration: none; }
+.tabla { min-width: 0; }
+h1 { font-size: 20pt; } h2 { font-size: 15pt; } h3 { font-size: 12.5pt; }
+.solo-impresion { display: block !important; }
