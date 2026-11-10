@@ -6,12 +6,15 @@ const path = require('path'); const fs = require('fs');
 const RAIZ = path.resolve(__dirname, '..', '..');
 const PUBLIC = path.join(RAIZ, 'public');
 
-function htmlInlineado(entorno) {
+function htmlInlineado(entorno, opciones_supabase) {
   let html = fs.readFileSync(path.join(PUBLIC, 'index.html'), 'utf8');
   if (entorno === 'produccion') html = html.replace(/\s*<!-- dev:start -->[\s\S]*?<!-- dev:end -->/g, '');
   return html.replace(/<script src="([^"]+)"><\/script>/g, (m, src) => {
     const archivo = src === 'js/env.js' ? path.join(RAIZ, 'config', 'env.' + entorno + '.js') : path.join(PUBLIC, src);
-    return '<script>' + fs.readFileSync(archivo, 'utf8').replace(/<\/script/g, '<\\/script') + '</script>';
+    let codigo = fs.readFileSync(archivo, 'utf8');
+    // Estas suites prueban el adaptador HTTP de rc4 contra una API simulada: sin supabaseUrl (salvo opciones.supabase).
+    if (src === 'js/env.js' && !opciones_supabase) codigo = codigo.replace(/supabaseUrl:[^\n]*\n/, '').replace(/supabaseKey:[^\n]*\n/, '');
+    return '<script>' + codigo.replace(/<\/script/g, '<\\/script') + '</script>';
   }).replace(/<link rel="stylesheet"[^>]*>/g, '');
 }
 
@@ -21,7 +24,7 @@ function crear(opciones) {
   vc.on('jsdomError', e => { const m = String(e && e.message || e); if (!/navigation \(except hash changes\)/.test(m)) errores.push(m); });
   vc.on('error', e => errores.push(String(e)));
   vc.on('warn', m => { if (String(m).includes('[TH]')) errores.push('WARN ' + m); });
-  const dom = new JSDOM(htmlInlineado(entorno), { url: o.url || (entorno === 'produccion' ? 'https://turquesahub.example/' : 'http://localhost/'), runScripts: 'dangerously', pretendToBeVisual: true, virtualConsole: vc, beforeParse(win) { if (o.fetch) win.fetch = o.fetch; } });
+  const dom = new JSDOM(htmlInlineado(entorno, o.supabase), { url: o.url || (entorno === 'produccion' ? 'https://turquesahub.example/' : 'http://localhost/'), runScripts: 'dangerously', pretendToBeVisual: true, virtualConsole: vc, beforeParse(win) { if (o.fetch) win.fetch = o.fetch; } });
   const w = dom.window; w.scrollTo = () => { }; w.print = () => { w.__printed = (w.__printed || 0) + 1; }; w.HTMLElement.prototype.setSelectionRange = function () { };
   w.URL.createObjectURL = () => 'blob:x'; w.URL.revokeObjectURL = () => { };
   const cuenta = { pasos: 0, fallos: 0 };

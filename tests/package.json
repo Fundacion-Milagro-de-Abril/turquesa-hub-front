@@ -5,9 +5,10 @@
   "scripts": {
     "smoke": "node smoke.js",
     "api": "node api-simulada.js",
-    "produccion": "node produccion.js",
+    "produccion": "node produccion.js && node supabase.js",
+    "supabase": "node supabase.js",
     "axe": "node axe.js",
-    "test": "node smoke.js && node api-simulada.js && node produccion.js"
+    "test": "node smoke.js && node api-simulada.js && node produccion.js && node supabase.js"
   },
   "devDependencies": { "jsdom": "^24.0.0", "playwright": "^1.40.0", "axe-core": "^4.8.0" }
 }

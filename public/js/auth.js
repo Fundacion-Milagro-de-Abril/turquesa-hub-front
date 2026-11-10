@@ -137,6 +137,8 @@ window.TH = window.TH || {};
   };
 
   TH.authAdaptadores = { local, http };
+  /** Lo mínimo que necesita un adaptador externo (js/supabase.js) para abrir y cerrar la sesión de presentación. */
+  TH.authInterno = { guardarSesion };
 
   TH.auth = {
     get adaptador() { return TH.authAdaptadores[TH.config.auth.adaptador] || local; },

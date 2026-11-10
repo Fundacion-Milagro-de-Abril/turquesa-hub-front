@@ -116,6 +116,13 @@ window.TH = window.TH || {};
       política definitiva publicada o, solo en desarrollo, el aviso preparado. Las condiciones de uso solo se piden si están publicadas.
       La casilla de autorización es independiente y nunca viene marcada. */
   function bloqueConsentimiento() {
+    if (TH.config.auth.adaptador === 'supabase') {
+      const a = TH.supabaseAviso;
+      if (!a) return { habilitado: false, html: TH.ui.alerta('alerta', 'Activación pendiente de habilitación', 'La Fundación Milagro de Abril aún no ha publicado el aviso de información y autorización para el tratamiento de datos personales. Hasta entonces no es posible activar cuentas.') };
+      return { habilitado: true, html: '<details class="ayuda mb-4"><summary>Leer el aviso completo (versión ' + esc(a.version) + ')</summary><div class="ayuda__cuerpo"><h4>' + esc(a.titulo) + '</h4><p style="white-space:pre-line">' + esc(a.texto) + '</p></div></details>' +
+        TH.ui.check('aceptaDatos', 'Autorizo a Fundación Milagro de Abril el tratamiento de mis datos personales conforme al aviso de información y autorización (versión ' + esc(a.version) + ').', false) + '<div class="campo" data-campo="aceptaDatos"><span class="campo__error" role="alert"></span></div>' +
+        '<p class="texto-xs texto-2">La autorización se registra con fecha e identificador de la versión aceptada. No proporciones datos sensibles ni información sobre casos de violencia.</p>' };
+    }
     const base = TH.api.documentosLegales.baseRegistro(); const cond = TH.api.documentosLegales.publicado('condiciones-uso');
     if (!base) return { habilitado: false, html: TH.ui.alerta('alerta', 'Registro pendiente de habilitación', 'La Fundación Milagro de Abril aún no ha publicado el <a href="#/aviso-registro">aviso de información y autorización</a> para el tratamiento de datos personales. El formulario se habilitará en cuanto se publique; mientras tanto no se recogen datos.') };
     const d = base.documento; const fechaRef = d.publicacion ? 'publicada el ' + TH.util.fecha(d.publicacion.fecha) : 'preparada el ' + TH.util.fecha(d.fecha);
@@ -199,6 +206,7 @@ window.TH = window.TH || {};
     const consentimiento = bloqueConsentimiento();
     return '<section class="seccion" style="max-width:640px"><div class="seccion__eyebrow">Colaboradores</div><h1>Activa tu acceso</h1><p class="texto-2">Tu organización te invitó a participar en los módulos de sensibilización de Turquesa Hub. Usa el código de tu invitación y define tu contraseña.</p>' +
       '<form class="card" data-form="activar-invitacion" novalidate>' + TH.ui.campo({ name: 'codigo', label: 'Código de invitación', required: true, valor: ctx.params.codigo || '', placeholder: 'Ej.: ABCD-1234' }) +
+      (TH.config.auth.adaptador === 'supabase' ? TH.ui.campo({ name: 'email', label: 'Correo al que llegó la invitación', tipo: 'email', required: true, attrs: ' autocomplete="email"' }) : '') +
       TH.ui.campo({ name: 'nombre', label: 'Tu nombre (como quieres que aparezca)', required: true, attrs: ' autocomplete="name"' }) + TH.ui.campo({ name: 'area', label: 'Área o equipo (opcional)' }) +
       '<div class="form-fila">' + TH.ui.campo({ name: 'clave', label: 'Contraseña', tipo: 'password', required: true, ayuda: 'Mínimo ' + TH.config.auth.clave.longitudMinima + ' caracteres, con letras y números.', attrs: ' autocomplete="new-password"' }) + TH.ui.campo({ name: 'claveConfirmacion', label: 'Confirmar contraseña', tipo: 'password', required: true, attrs: ' autocomplete="new-password"' }) + '</div>' +
       consentimiento.html +
@@ -268,13 +276,14 @@ window.TH = window.TH || {};
       if (!TH.ui.validar(form)) return; const d = TH.ui.datosFormulario(form);
       if (d.clave !== d.claveConfirmacion) { TH.ui.mostrarErrores(form, { claveConfirmacion: 'Las contraseñas no coinciden.' }); return; }
       d.aceptaDatos = !!(form.elements.aceptaDatos && form.elements.aceptaDatos.checked); d.aceptaCondiciones = !!(form.elements.aceptaCondiciones && form.elements.aceptaCondiciones.checked);
-      if (!TH.api.documentosLegales.registroHabilitado()) { TH.ui.mostrarErrores(form, { general: 'La activación aún no está habilitada: la Fundación no ha publicado el aviso de información y autorización de datos.' }); return; }
+      if (TH.config.auth.adaptador !== 'supabase' && !TH.api.documentosLegales.registroHabilitado()) { TH.ui.mostrarErrores(form, { general: 'La activación aún no está habilitada: la Fundación no ha publicado el aviso de información y autorización de datos.' }); return; }
       if (!d.aceptaDatos) { TH.ui.mostrarErrores(form, { aceptaDatos: 'Debes autorizar el tratamiento de tus datos personales.' }); return; }
       if (form.elements.aceptaCondiciones && !d.aceptaCondiciones) { TH.ui.mostrarErrores(form, { aceptaCondiciones: 'Debes aceptar las condiciones de uso.' }); return; }
       TH.ui.ocupado(form, true, 'Activando…');
-      const r = await TH.auth.activarInvitacion(d.codigo, { nombre: d.nombre, area: d.area, clave: d.clave, aceptaDatos: d.aceptaDatos, aceptaCondiciones: d.aceptaCondiciones, documentoDatosId: d.documentoDatosId || '', documentoCondicionesId: d.documentoCondicionesId || '' });
+      const r = await TH.auth.activarInvitacion(d.codigo, { email: d.email, nombre: d.nombre, area: d.area, clave: d.clave, aceptaDatos: d.aceptaDatos, aceptaCondiciones: d.aceptaCondiciones, documentoDatosId: d.documentoDatosId || '', documentoCondicionesId: d.documentoCondicionesId || '' });
       TH.ui.ocupado(form, false);
       if (!r.ok) { TH.ui.errorApi(r, form); return; }
+      if (r.verificacion === 'pendiente') { TH.ui.toast('Cuenta creada. Revisa tu correo y abre el enlace para verificarla; después ingresa.', 'exito'); TH.router.ir('/acceso'); return; }
       const ing = await TH.auth.ingresar(r.usuario.email, d.clave); if (ing.ok) { TH.ui.toast('Acceso activado. Bienvenido/a, ' + r.usuario.nombre + '.', 'exito'); TH.router.ir('/colaborador/inicio'); } else TH.router.ir('/acceso?mensaje=registro');
     },
     async 'sello-interes'(form) {

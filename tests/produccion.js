@@ -22,7 +22,7 @@ let fallos = 0, pasos = 0; const ok = (c, m) => { pasos++; if (!c) { fallos++; c
   ok(/generado/.test(desarrollo) && fs.existsSync(path.join(RAIZ, 'dist-dev', 'js', 'dev', 'semilla.js')), 'La construcción de desarrollo conserva la semilla'); fs.rmSync(path.join(RAIZ, 'dist-dev'), { recursive: true, force: true });
 
   console.log('\n[Comportamiento sin backend disponible]');
-  const inl = html.replace(/<script src="([^"]+)"><\/script>/g, (m, src) => '<script>' + fs.readFileSync(path.join(DIST, src), 'utf8').replace(/<\/script/g, '<\\/script') + '</script>').replace(/<link rel="stylesheet"[^>]*>/g, '');
+  const inl = html.replace(/<script src="([^"]+)"><\/script>/g, (m, src) => '<script>' + fs.readFileSync(path.join(DIST, src), 'utf8').replace(/supabaseUrl:[^\n]*\n|supabaseKey:[^\n]*\n/g, '').replace(/<\/script/g, '<\\/script') + '</script>').replace(/<link rel="stylesheet"[^>]*>/g, '');
   const vc = new VirtualConsole(); const errores = []; vc.on('jsdomError', e => errores.push(String(e && e.message || e)));
   const llamadas = [];
   const dom = new JSDOM(inl, { url: 'https://turquesahub.example/', runScripts: 'dangerously', pretendToBeVisual: true, virtualConsole: vc, beforeParse(win) { win.fetch = async (url, o) => { llamadas.push({ url: String(url), metodo: (o && o.method) || 'GET' }); throw new TypeError('Failed to fetch'); }; } });

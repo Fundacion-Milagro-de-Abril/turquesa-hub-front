@@ -20,9 +20,11 @@ TH.config = (function () {
     esDesarrollo: !remoto,
     /** true cuando los servicios se consumen por HTTP (producción). */
     esRemoto: remoto,
+    /** Conexión a Supabase (solo producción). La clave publishable es pública por diseño. */
+    supabase: { url: env.supabaseUrl || '', key: env.supabaseKey || '' },
     api: { baseUrl: env.apiBase || '/api/v1', timeoutMs: 15000, cacheSegundos: 60 },
     auth: {
-      adaptador: remoto ? 'http' : 'local',
+      adaptador: remoto ? (env.supabaseUrl ? 'supabase' : 'http') : 'local',
       sesionMinutos: 480,
       clave: { longitudMinima: 10, requiereNumero: true, requiereLetra: true }
     },
