@@ -11,10 +11,31 @@ const { crear } = require('./lib/entorno');
   const perfil = { id: 'u-1', organizacion_id: 'o-1', rol: 'organizacion', nombre: 'Ana', estado: 'activo' };
   const org = { id: 'o-1', nombre: 'Org Uno', estado: 'activa', tipo_identificacion: 'NIT', identificacion: '900' };
   let sesion = null; let falloLogin = false; let falloAlta = null;
-  const consulta = (tabla) => ({
-    select() { return this; }, eq() { return this; },
-    async maybeSingle() { llamadas.push('select ' + tabla); return { data: tabla === 'perfiles' ? perfil : tabla === 'organizaciones' ? org : { version: 'v1', titulo: 'Aviso', texto: 'Texto' }, error: null }; }
-  });
+  const tablas = {
+    perfiles: [perfil], organizaciones: [org],
+    avisos: [{ version: 'v1', titulo: 'Aviso', texto: 'Texto', estado: 'publicado' }],
+    invitaciones: [{ id: 'i-1', organizacion_id: 'o-1', email: 'pend@org.test', rol: 'organizacion', estado: 'pendiente', vence_en: '2999-01-01T00:00:00Z', creada_en: '2026-11-10T00:00:00Z' }],
+    auditoria: [{ id: 1, actor_id: 'u-1', organizacion_id: 'o-1', accion: 'sesion.inicio', detalle: {}, creado_en: '2026-11-10T00:00:00Z' }]
+  };
+  const consulta = (tabla) => {
+    const q = { op: 'select', filtros: [], payload: null, uno: false };
+    const filas = () => (tablas[tabla] || []).filter(r => q.filtros.every(([k, v]) => r[k] === v));
+    const b = {
+      select() { return b; }, order() { return b; }, limit() { return b; },
+      eq(k, v) { q.filtros.push([k, v]); return b; },
+      insert(p) { q.op = 'insert'; q.payload = p; llamadas.push({ insert: tabla, payload: p }); return b; },
+      update(p) { q.op = 'update'; q.payload = p; llamadas.push({ update: tabla, payload: p, filtros: q.filtros }); return b; },
+      single() { q.uno = true; return b; }, maybeSingle() { q.uno = true; return b; },
+      then(ok, fail) {
+        let data;
+        if (q.op === 'insert') { const fila = Object.assign({ id: 'nuevo-1' }, q.payload); (tablas[tabla] = tablas[tabla] || []).push(fila); data = fila; }
+        else if (q.op === 'update') { const f = filas(); f.forEach(r => Object.assign(r, q.payload)); data = f; }
+        else { llamadas.push('select ' + tabla); const f = filas(); data = q.uno ? (f[0] || null) : f; }
+        return Promise.resolve({ data, error: null }).then(ok, fail);
+      }
+    };
+    return b;
+  };
   const cliente = {
     auth: {
       async signInWithPassword(c) { llamadas.push('login'); if (falloLogin) return { data: null, error: { code: 'invalid_credentials', message: 'x' } }; sesion = { user: { id: 'u-1', email: c.email } }; return { data: { user: sesion.user, session: sesion }, error: null }; },
@@ -26,7 +47,7 @@ const { crear } = require('./lib/entorno');
       async resend() { return { error: null }; }
     },
     from: consulta,
-    async rpc(n) { llamadas.push('rpc ' + n); return { error: null }; }
+    async rpc(n, args) { llamadas.push('rpc ' + n); llamadas.push({ rpc: n, args }); return { data: n === 'crear_invitacion' ? 'COD-NUEVO' : null, error: null }; }
   };
   // Se inyecta el cliente simulado antes de que cargue js/supabase.js.
   const TH = await h.listo();
@@ -75,6 +96,36 @@ const { crear } = require('./lib/entorno');
   falloAlta = 'REGISTRO_NO_DISPONIBLE: x';
   r = await A.activarInvitacion('X', { email: 'n@o.test', nombre: 'N', clave: 'Clave12345*', aceptaDatos: true });
   ok(!r.ok && r.codigo === 'INFORMACION_NO_PUBLICADA', 'Alta: sin aviso publicado se informa que no está habilitada');
+
+  // ---------- Administración mínima de FMA ----------
+  perfil.rol = 'admin_fma'; perfil.organizacion_id = null;
+  await A.ingresar('admin@fma.test', 'Clave12345*');
+  await h.ir('/fma/organizaciones');
+  ok(JSON.stringify(h.nav()) === JSON.stringify(['/fma/inicio', '/fma/organizaciones', '/fma/auditoria']), 'FMA: el menú muestra solo lo que está conectado');
+  ok(/Org Uno/.test(h.texto()) && /pend@org\.test/.test(h.texto()), 'FMA: lista organizaciones e invitaciones desde la base');
+  ok(!/COD-|codigo_hash/.test(h.texto()), 'FMA: la lista nunca muestra códigos de invitación');
+
+  await h.click('[data-action="fma-org-nueva"]');
+  h.w.document.getElementById('nombre').value = 'Org Nueva'; h.w.document.getElementById('identificacion').value = '900.555.666-1';
+  h.w.document.getElementById('responsable').value = 'Rosa'; h.w.document.getElementById('email').value = 'rosa@nueva.test';
+  await h.submit('#form-org-nueva'); await sleep(300);
+  const ins = llamadas.find(l => l && l.insert === 'organizaciones');
+  ok(ins && ins.payload.nombre === 'Org Nueva' && !('organizacion_id' in ins.payload) && !('estado' in ins.payload), 'Crear organización: solo envía datos de la organización (sin id, estado ni rol)');
+  const rpc = llamadas.find(l => l && l.rpc === 'crear_invitacion');
+  ok(rpc && rpc.args.p_rol === 'organizacion' && rpc.args.p_email === 'rosa@nueva.test' && rpc.args.p_organizacion_id === 'nuevo-1', 'Crear organización: la invitación va al correo del responsable, atada a la organización creada');
+  const campoEnlace = h.w.document.getElementById('enlace-inv');
+  ok(campoEnlace && /#\/activar-invitacion\?codigo=COD-NUEVO$/.test(campoEnlace.value), 'El enlace de activación se muestra al crear (una sola vez)');
+  h.w.document.querySelector('[data-modal-cerrar]').click(); await sleep(100);
+
+  const antes = llamadas.length;
+  await h.click('[data-action="fma-org-estado"][data-id="o-1"]');
+  await h.click('[data-confirmar]'); await sleep(300);
+  const upd = llamadas.slice(antes).find(l => l && l.update === 'organizaciones');
+  ok(upd && upd.payload.estado === 'suspendida' && upd.filtros[0][1] === 'o-1', 'Suspender: cambia solo el estado de esa organización (la base valida el permiso)');
+
+  await h.ir('/fma/auditoria');
+  ok(/Inicio de sesión/.test(h.texto()), 'Trazabilidad: muestra eventos con nombre legible');
+  perfil.rol = 'organizacion'; perfil.organizacion_id = 'o-1'; org.estado = 'activa';   // se restablece el escenario
 
   await A.ingresar('ana@org.test', 'Clave12345*');
   w.location.hash = '#/organizacion/plan-accion'; await sleep(400);

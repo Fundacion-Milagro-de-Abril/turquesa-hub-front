@@ -184,8 +184,14 @@ window.TH = window.TH || {};
   /* El enrutador espera a TH.remoto.cargar antes de pintar cada ruta. Con Supabase todavía no hay cargadores de módulos:
      solo se precarga el aviso en la pantalla de activación. */
   if (TH.remoto) {
+    /* Cada pantalla que necesita datos registra aquí su cargador (ruta → función asíncrona); el enrutador lo espera antes de pintar. */
+    TH.supabaseCargadores = {};
     TH.remoto.cargar = async function (ctx) {
-      if (ctx && ctx.ruta === '/activar-invitacion') await cargarAviso();
+      try {
+        if (ctx && ctx.ruta === '/activar-invitacion') await cargarAviso();
+        const f = ctx && TH.supabaseCargadores[ctx.ruta];
+        if (f) await f(ctx);
+      } catch (e) { console.error('[TH] Error al cargar datos', e); return { ok: false, error: 'No fue posible cargar la información. Intenta de nuevo.' }; }
       return { ok: true };
     };
     TH.remoto.activar = function () { };   // las mutaciones HTTP de rc4 no se activan
