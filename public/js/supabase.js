@@ -162,7 +162,7 @@ window.TH = window.TH || {};
         email, password: datos.clave,
         options: {
           emailRedirectTo: location.origin + '/',
-          data: { codigo_invitacion: (codigo || '').trim(), version_aviso: aviso.version, nombre: (datos.nombre || '').trim() }
+          data: { codigo_invitacion: (codigo || '').trim(), version_aviso: aviso.version, nombre: (datos.nombre || '').trim(), area: (datos.area || '').trim() }
         }
       });
       if (error) return Object.assign({ ok: false }, mensajeAlta(error));

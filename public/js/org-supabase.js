@@ -9,7 +9,7 @@
                   La organización la toma la base de datos de la sesión: el navegador nunca la envía.
    El resultado del diagnóstico y las acciones sugeridas se calculan aquí (reglas de rc4); la base valida forma y
    completitud (decisión V3). «Atrasada» no se guarda: se calcula al leer.
-   Se ejecuta solo con el adaptador 'supabase'. La formación sigue «próximamente» (F04).
+   Se ejecuta solo con el adaptador 'supabase'. La formación está en formacion-supabase.js (F04).
    ============================================================ */
 window.TH = window.TH || {};
 
@@ -189,7 +189,7 @@ window.TH = window.TH || {};
     else if (!plan) estado = TH.ui.siguientePaso('Construye tu plan de acción', 'Tu autodiagnóstico está completo. Convierte las brechas en compromisos con responsables, fechas y metas.', '/organizacion/plan-accion', 'Crear el plan');
     else { const r = P.resumen(plan); estado = TH.ui.siguientePaso('Sigue tu plan de acción', 'Avance global ' + r.avance + ' % · ' + r.completadas + ' de ' + r.total + ' acciones completadas' + (r.vencidas.length ? ' · ' + r.vencidas.length + ' vencidas' : '') + '.', '/organizacion/plan-accion', 'Ver el plan'); }
     return TH.ui.encabezado('Hola, ' + ((ctx.usuario && ctx.usuario.nombre) || ''), org ? esc(org.nombre) : '') + estado +
-      TH.ui.alerta('info', 'Próximamente', 'La formación de colaboradores se habilitará en las próximas semanas.');
+      '<div class="card mt-4"><h3 class="card__titulo">Formación de tu equipo</h3><p class="texto-sm">Invita a tus colaboradores y asígnales módulos de sensibilización. Verás su avance, nunca sus respuestas.</p><a class="btn btn--secundario" href="#/organizacion/colaboradores">Ir a colaboradores</a></div>';
   }
   TH.router.registrar('/organizacion/inicio', { roles: ['organizacion'], titulo: 'Inicio', render: inicio });
 

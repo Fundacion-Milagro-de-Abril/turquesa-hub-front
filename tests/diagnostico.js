@@ -72,7 +72,7 @@ const { crear } = require('./lib/entorno');
   const A = TH.authAdaptadores.supabase;
   await A.ingresar('ana@org.test', 'Clave12345*');
   await h.ir('/organizacion/inicio');
-  ok(JSON.stringify(h.nav()) === JSON.stringify(['/organizacion/inicio', '/organizacion/diagnostico', '/organizacion/diagnostico/resultados', '/organizacion/plan-accion', '/organizacion/plan-accion/seguimiento']), 'Menú de la organización: inicio, autodiagnóstico, resultados, plan y seguimiento');
+  ok(JSON.stringify(h.nav()) === JSON.stringify(['/organizacion/inicio', '/organizacion/diagnostico', '/organizacion/diagnostico/resultados', '/organizacion/plan-accion', '/organizacion/plan-accion/seguimiento', '/organizacion/colaboradores', '/organizacion/biblioteca']), 'Menú de la organización: inicio, diagnóstico, plan, colaboradores y biblioteca');
   ok(/Empieza con tu autodiagnóstico/.test(h.texto()) && /16 preguntas/.test(h.texto()), 'Inicio: invita a empezar el autodiagnóstico');
   await h.ir('/organizacion/diagnostico');
   const btn = h.q('[data-action="diag-iniciar"]');
@@ -128,9 +128,9 @@ const { crear } = require('./lib/entorno');
   if (nc) { await h.click(nc); await h.click('[data-confirmar]'); await sleep(300); }
   ok(!!nc && diag.ciclo === 2 && archivados.length === 1 && archivados[0].estado === 'completado', 'Nuevo ciclo: el anterior queda archivado completado y empieza el ciclo 2');
 
-  // La formación sigue «próximamente»
-  await h.ir('/organizacion/colaboradores');
-  ok(/se habilitarán próximamente/.test(h.texto()), 'La formación de colaboradores sigue «próximamente»');
+  // Lo que aún no está conectado (reportes) sigue «próximamente»
+  await h.ir('/organizacion/reportes');
+  ok(/se habilitarán próximamente/.test(h.texto()), 'Los reportes siguen «próximamente»');
 
   ok(w.localStorage.length === 0, 'Nada en localStorage');
   console.log('\n' + h.cuenta.pasos + ' verificaciones · ' + h.cuenta.fallos + ' fallos'); process.exit(h.cuenta.fallos ? 1 : 0);

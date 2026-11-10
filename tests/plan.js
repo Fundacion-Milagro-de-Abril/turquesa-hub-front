@@ -79,7 +79,7 @@ const { crear } = require('./lib/entorno');
   const A = TH.authAdaptadores.supabase;
   await A.ingresar('ana@org.test', 'Clave12345*');
   await h.ir('/organizacion/plan-accion');
-  ok(JSON.stringify(h.nav()) === JSON.stringify(['/organizacion/inicio', '/organizacion/diagnostico', '/organizacion/diagnostico/resultados', '/organizacion/plan-accion', '/organizacion/plan-accion/seguimiento']), 'Menú: inicio, autodiagnóstico, resultados, plan y seguimiento');
+  ok(JSON.stringify(h.nav()) === JSON.stringify(['/organizacion/inicio', '/organizacion/diagnostico', '/organizacion/diagnostico/resultados', '/organizacion/plan-accion', '/organizacion/plan-accion/seguimiento', '/organizacion/colaboradores', '/organizacion/biblioteca']), 'Menú: inicio, diagnóstico, plan, colaboradores y biblioteca');
   ok(/Construir el plan de acción/.test(h.texto()) && h.w.document.querySelectorAll('input[name=sel]').length > 0, 'Con diagnóstico completado y sin plan: ofrece seleccionar recomendaciones');
   ok(!/Disponible|próximamente/i.test(h.texto()), 'La pantalla del plan ya no es «próximamente»');
 

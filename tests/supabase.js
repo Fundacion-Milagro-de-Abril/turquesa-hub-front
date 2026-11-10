@@ -101,7 +101,7 @@ const { crear } = require('./lib/entorno');
   perfil.rol = 'admin_fma'; perfil.organizacion_id = null;
   await A.ingresar('admin@fma.test', 'Clave12345*');
   await h.ir('/fma/organizaciones');
-  ok(JSON.stringify(h.nav()) === JSON.stringify(['/fma/inicio', '/fma/organizaciones', '/fma/auditoria']), 'FMA: el menú muestra solo lo que está conectado');
+  ok(JSON.stringify(h.nav()) === JSON.stringify(['/fma/inicio', '/fma/organizaciones', '/fma/formacion', '/fma/equipo', '/fma/auditoria']), 'FMA: el menú muestra solo lo que está conectado');
   ok(/Org Uno/.test(h.texto()) && /pend@org\.test/.test(h.texto()), 'FMA: lista organizaciones e invitaciones desde la base');
   ok(!/COD-|codigo_hash/.test(h.texto()), 'FMA: la lista nunca muestra códigos de invitación');
 
@@ -128,7 +128,7 @@ const { crear } = require('./lib/entorno');
   perfil.rol = 'organizacion'; perfil.organizacion_id = 'o-1'; org.estado = 'activa';   // se restablece el escenario
 
   await A.ingresar('ana@org.test', 'Clave12345*');
-  w.location.hash = '#/organizacion/colaboradores'; await sleep(400);
+  w.location.hash = '#/organizacion/reportes'; await sleep(400);
   const texto = w.document.getElementById('app').textContent;
   ok(/se habilitarán próximamente/.test(texto), 'Las rutas privadas informan que el módulo se habilita próximamente');
   await A.salir();
