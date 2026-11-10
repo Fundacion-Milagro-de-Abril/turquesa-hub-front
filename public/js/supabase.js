@@ -202,6 +202,7 @@ window.TH = window.TH || {};
     Object.keys(TH.router.rutas).forEach(function (r) {
       const def = TH.router.rutas[r];
       if (!def.roles || !def.roles.length) return;
+      def.__render = def.render; def.__permiso = def.permiso; def.__despues = def.despues;   // se conservan para habilitar cada módulo cuando se conecte
       def.permiso = null;
       def.despues = null;
       def.render = function (ctx) {
@@ -211,4 +212,10 @@ window.TH = window.TH || {};
       };
     });
   })();
+
+  /** Devuelve a una ruta su pantalla original de rc4 (se usa al conectar cada módulo a la base de datos). */
+  TH.supabaseHabilitar = function (ruta) {
+    const d = TH.router.rutas[ruta]; if (!d || !d.__render) return;
+    d.render = d.__render; d.permiso = d.__permiso; d.despues = d.__despues;
+  };
 })();
