@@ -101,7 +101,7 @@ const { crear } = require('./lib/entorno');
   perfil.rol = 'admin_fma'; perfil.organizacion_id = null;
   await A.ingresar('admin@fma.test', 'Clave12345*');
   await h.ir('/fma/organizaciones');
-  ok(JSON.stringify(h.nav()) === JSON.stringify(['/fma/inicio', '/fma/organizaciones', '/fma/formacion', '/fma/equipo', '/fma/auditoria']), 'FMA: el menú muestra solo lo que está conectado');
+  ok(JSON.stringify(h.nav()) === JSON.stringify(['/fma/inicio', '/fma/organizaciones', '/fma/formacion', '/fma/contenidos', '/fma/equipo', '/fma/auditoria']), 'FMA: el menú muestra solo lo que está conectado');
   ok(/Org Uno/.test(h.texto()) && /pend@org\.test/.test(h.texto()), 'FMA: lista organizaciones e invitaciones desde la base');
   ok(!/COD-|codigo_hash/.test(h.texto()), 'FMA: la lista nunca muestra códigos de invitación');
 

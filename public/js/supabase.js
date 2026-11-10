@@ -53,7 +53,8 @@ window.TH = window.TH || {};
     const usuario = {
       id: p.id, nombre: p.nombre, email: authUser.email, rol, orgId: p.organizacion_id || null,
       cargo: p.cargo || '', area: p.area || '', telefono: p.telefono || '', estado: 'activo', correoVerificado: true,
-      permisos: rol === 'fma' ? ['*'] : []
+      // En el MVP admin_fma tiene todos los permisos, incluidos los de revisión (los permisos finos quedan para v2).
+      permisos: rol === 'fma' ? ['*'].concat(TH.auth.PERMISOS_EXCLUSIVOS || []) : []
     };
     return { usuario, org };
   }

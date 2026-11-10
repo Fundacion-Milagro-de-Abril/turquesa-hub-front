@@ -25,7 +25,9 @@ window.TH = window.TH || {};
     { grupo: 'Plataforma' },
     { ruta: '/fma/inicio', texto: 'Tablero general', icono: 'tablero' },
     { ruta: '/fma/organizaciones', texto: 'Organizaciones', icono: 'edificio' },
-    { ruta: '/fma/formacion', texto: 'Formación y biblioteca', icono: 'formacion' },
+    { grupo: 'Editorial' },
+    { ruta: '/fma/formacion', texto: 'Formación', icono: 'formacion' },
+    { ruta: '/fma/contenidos', texto: 'Contenidos', icono: 'biblioteca' },
     { grupo: 'Sistema' },
     { ruta: '/fma/equipo', texto: 'Equipo FMA', icono: 'personas' },
     { ruta: '/fma/auditoria', texto: 'Trazabilidad', icono: 'historial' });
@@ -172,34 +174,12 @@ window.TH = window.TH || {};
       ], D.invs, { caption: 'Invitaciones', vacioTitulo: 'Sin invitaciones', vacioTexto: '' });
   }
 
-  /* ---------- Formación y biblioteca: publicar ---------- */
-  TH.supabaseCargadores['/fma/formacion'] = async function () {
-    const [m, c] = await Promise.all([sb.from('modulos').select('id, orden, titulo, estado, publicado_en').order('orden'), sb.from('contenidos').select('id, titulo, publico, estado, publicado_en').order('titulo')]);
-    datos.modulos = lanzar(m) || []; datos.contenidos = lanzar(c) || [];
-  };
-  function formacionFMA() {
-    const boton = (tipo, x) => x.estado === 'publicado'
-      ? '<button type="button" class="btn btn--terciario btn--sm" data-action="fma-publicar" data-tipo="' + tipo + '" data-id="' + esc(x.id) + '" data-publicar="0" data-titulo="' + esc(x.titulo) + '">Retirar</button>'
-      : '<button type="button" class="btn btn--secundario btn--sm" data-action="fma-publicar" data-tipo="' + tipo + '" data-id="' + esc(x.id) + '" data-publicar="1" data-titulo="' + esc(x.titulo) + '">Publicar</button>';
-    const est = (x) => x.estado === 'publicado' ? TH.ui.badge('Publicado', 'exito') + '<div class="texto-xs texto-3">' + esc(fecha(x.publicado_en)) + '</div>' : TH.ui.badge('Borrador', 'neutro');
-    return TH.ui.encabezado('Formación y biblioteca', 'Decide qué módulos y contenidos ven las organizaciones y los colaboradores. Publica solo lo que ya fue revisado y aprobado.') +
-      TH.ui.alerta('alerta', 'Antes de publicar', 'Los textos de módulos y biblioteca aún no tienen revisión jurídica ni psicosocial registrada. Publicar los hace visibles para todas las organizaciones.') +
-      '<h2>Módulos de formación</h2>' + TH.ui.tabla([
-        { titulo: 'Módulo', render: x => '<strong>' + x.orden + '. ' + esc(x.titulo) + '</strong>' }, { titulo: 'Estado', render: est }, { titulo: '', clase: 'acciones', render: x => boton('modulo', x) }
-      ], datos.modulos || [], { caption: 'Módulos' }) +
-      '<h2 class="mt-5">Biblioteca</h2>' + TH.ui.tabla([
-        { titulo: 'Contenido', render: x => esc(x.titulo) }, { titulo: 'Para', render: x => (x.publico || []).map(p => TH.ui.badge(p === 'organizacion' ? 'Organizaciones' : 'Colaboradores', 'neutro')).join(' ') },
-        { titulo: 'Estado', render: est }, { titulo: '', clase: 'acciones', render: x => boton('contenido', x) }
-      ], datos.contenidos || [], { caption: 'Biblioteca' });
-  }
-
   TH.router.registrarVarias({
     '/fma/inicio': { roles: ROLES, titulo: 'Tablero general', render: inicio },
     '/fma/organizaciones': { roles: ROLES, titulo: 'Organizaciones', render: organizaciones, ancho: true },
     '/fma/auditoria': { roles: ROLES, titulo: 'Trazabilidad', render: auditoria, ancho: true },
     '/fma/equipo': { roles: ROLES, titulo: 'Equipo FMA', render: equipo, ancho: true },
-    '/fma/organizaciones/detalle': { roles: ROLES, titulo: 'Organización', render: detalle, ancho: true },
-    '/fma/formacion': { roles: ROLES, titulo: 'Formación y biblioteca', render: formacionFMA, ancho: true }
+    '/fma/organizaciones/detalle': { roles: ROLES, titulo: 'Organización', render: detalle, ancho: true }
   });
 
   /* ---------- Acciones ---------- */
@@ -277,15 +257,6 @@ window.TH = window.TH || {};
       const r = await sb.from('perfiles').update({ estado: el.dataset.estado }).eq('id', el.dataset.id).select('id');
       if (r.error || !(r.data || []).length) { TH.ui.toast(r.error ? msg(r.error) : 'No fue posible cambiar el estado.', 'error', 6000); return; }
       TH.ui.toast(suspender ? 'Acceso suspendido.' : 'Acceso reactivado.', 'exito'); refrescar();
-    },
-    async 'fma-publicar'(el) {
-      const publicar = el.dataset.publicar === '1';
-      const si = await TH.ui.confirmar({ titulo: publicar ? 'Publicar' : 'Retirar', peligro: !publicar, aceptar: publicar ? 'Publicar' : 'Retirar',
-        texto: '«' + esc(el.dataset.titulo) + '» ' + (publicar ? 'quedará visible para todas las organizaciones y colaboradores.' : 'dejará de estar visible. El avance ya registrado se conserva.') });
-      if (!si) return;
-      const r = await sb.rpc('publicar_catalogo', { p_tipo: el.dataset.tipo, p_id: el.dataset.id, p_publicar: publicar });
-      if (r.error) { TH.ui.toast(msg(r.error), 'error', 6000); return; }
-      TH.ui.toast(publicar ? 'Publicado.' : 'Retirado.', 'exito'); refrescar();
     },
     async 'fma-copiar'(el) {
       try { await navigator.clipboard.writeText(el.dataset.texto); TH.ui.toast('Enlace copiado.', 'exito'); }

@@ -1,7 +1,8 @@
 /* ============================================================
    TURQUESA HUB · FORMACIÓN Y PERSONAS (adaptador Supabase) — F04
-   - Catálogo: los TEXTOS de módulos y biblioteca están en js/data/; la base dice qué está PUBLICADO
-     (tablas modulos y contenidos) y es quien califica el ejercicio.
+   - Contenido (F08, decisión V10): módulos (por versiones) y biblioteca viven en la base. FMA los edita con las pantallas
+     editoriales de rc4; lo que se guarda pasa por guardar_version_modulo y guardar_contenido, que validan el flujo
+     (publicar exige aprobación y revisiones). Los demás roles leen solo lo publicado. La base califica el ejercicio.
    - Colaborador: usa las pantallas de rc4 (Mi formación, módulo, progreso, recursos, cuenta). Sus avances van
      a funciones de la base (marcar_leccion, responder_ejercicio, finalizar_modulo, reintentar_modulo).
      Sus respuestas son privadas: solo él las lee.
@@ -17,15 +18,13 @@ window.TH = window.TH || {};
   const lanzar = (r) => { if (r.error) throw r.error; return r.data; };
   const yo = () => TH.auth.usuario();
 
-  /* ---------- Catálogo publicado (todos los roles) ---------- */
+  /* ---------- Contenido desde la base (admin_fma: todo; demás roles: solo lo publicado, por RLS) ---------- */
   async function cargarCatalogo() {
-    const [m, c] = await Promise.all([sb.from('modulos').select('id, estado'), sb.from('contenidos').select('id, estado, publico')]);
-    const em = {}; (lanzar(m) || []).forEach(x => { em[x.id] = x.estado; });
-    const ec = {}; (lanzar(c) || []).forEach(x => { ec[x.id] = x; });
+    const [m, c] = await Promise.all([sb.from('modulo_versiones').select('id, modulo_id, estado, datos'), sb.from('contenidos').select('id, estado, publico, datos')]);
+    const versiones = lanzar(m) || []; const contenidos = lanzar(c) || [];
     TH.store.update(s => {
-      // Módulos con la forma de rc4 (versión publicada de cada módulo). Lo que la base no devuelve queda en borrador.
-      s.modulos = TH.data.modulos.map(md => Object.assign(JSON.parse(JSON.stringify(md)), { id: 'modv-' + md.id, moduloId: md.id, version: '1.0', estado: em[md.id] || 'borrador' }));
-      s.contenidos = TH.data.contenidos.map(ct => Object.assign(JSON.parse(JSON.stringify(ct)), { estado: ec[ct.id] ? ec[ct.id].estado : 'borrador', publico: ec[ct.id] ? ec[ct.id].publico : (ct.publico || []) }));
+      s.modulos = versiones.map(v => Object.assign({}, v.datos, { id: v.id, moduloId: v.modulo_id, estado: v.estado }));
+      s.contenidos = contenidos.filter(x => x.datos).map(x => Object.assign({}, x.datos, { id: x.id, estado: x.estado, publico: x.publico }));
     }, 'remoto');
   }
   TH.cargarCatalogo = cargarCatalogo;
@@ -115,7 +114,7 @@ window.TH = window.TH || {};
 
   const ui = { tab: 'personas' };
   const publicados = () => F.modulos();
-  const nombreModulo = (id) => { const m = TH.data.modulos.find(x => x.id === id); return m ? 'M' + m.orden + ' · ' + m.titulo : id; };
+  const nombreModulo = (id) => { const m = (TH.store.get().modulos || []).find(x => x.moduloId === id && x.estado === 'publicado') || (TH.store.get().modulos || []).find(x => x.moduloId === id); return m ? 'M' + m.orden + ' · ' + m.titulo : id; };
   const badgeEstado = (e) => e === 'activo' ? TH.ui.badge('Activo', 'exito') : e === 'suspendido' ? TH.ui.badge('Suspendido', 'error') : TH.ui.badge('Desvinculado', 'neutro');
   const vigente = (i) => i.estado === 'pendiente' && new Date(i.vence_en) > new Date();
   const checksModulos = (marcados) => {
@@ -226,4 +225,32 @@ window.TH = window.TH || {};
     { grupo: 'Personas' },
     { ruta: '/organizacion/colaboradores', texto: 'Colaboradores', icono: 'personas' },
     { ruta: '/organizacion/biblioteca', texto: 'Biblioteca', icono: 'biblioteca' });
+
+  /* =====================================================================
+     FMA: flujo editorial de rc4 guardado en la base (F08)
+     Cada operación de rc4 corre sus reglas sobre la caché; luego se envía a la base cada versión o contenido que
+     cambió. La base vuelve a validar (sobre todo publicar). Si rechaza algo, se recarga lo que hay en la base.
+     ===================================================================== */
+  const MSG_ED = [[/Solo se publica|deben estar aprobadas/, 'Para publicar, la versión debe estar aprobada con sus revisiones registradas.'], [/no se edita|no se modifica/, 'Lo publicado o archivado no se edita: crea una versión nueva.'], [/necesita|Cada lección|Cada pregunta/, 'La estructura no es válida: revisa lecciones y preguntas.'], [/42501|permission/, 'No tienes permiso para esta operación.']];
+  const falloEd = (e) => { const t = ((e && e.message) || '') + ' ' + ((e && e.code) || ''); const m = MSG_ED.find(x => x[0].test(t)); return { ok: false, error: m ? m[1] : 'No fue posible guardar en la base. Intenta de nuevo.' }; };
+  function sincronizado(api, coleccion, rpcNombre) {
+    ['crear', 'crearVersion', 'editar', 'cambiarEstado', 'registrarRevision'].forEach(op => {
+      const original = api[op]; if (typeof original !== 'function') return;
+      api[op] = async function () {
+        const antes = {}; (TH.store.get()[coleccion] || []).forEach(x => { antes[x.id] = JSON.stringify(x); });
+        const r = original.apply(api, arguments);
+        if (!r || !r.ok) return r;
+        // Primero lo que deja de estar publicado y después lo publicado (en la base solo puede haber uno publicado).
+        const cambios = (TH.store.get()[coleccion] || []).filter(x => antes[x.id] !== JSON.stringify(x)).sort((a, b) => (a.estado === 'publicado') - (b.estado === 'publicado'));
+        for (const x of cambios) {
+          const e = await sb.rpc(rpcNombre, { p_datos: JSON.parse(JSON.stringify(x)) });
+          if (e.error) { await cargarCatalogo(); return falloEd(e.error); }
+        }
+        return r;
+      };
+    });
+  }
+  sincronizado(TH.api.modulos, 'modulos', 'guardar_version_modulo');
+  sincronizado(TH.api.contenidos, 'contenidos', 'guardar_contenido');
+  ['/fma/formacion', '/fma/formacion/version', '/fma/contenidos'].forEach(r => { TH.supabaseCargadores[r] = cargarCatalogo; TH.supabaseHabilitar(r); });
 })();

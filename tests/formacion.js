@@ -15,8 +15,9 @@ const { crear } = require('./lib/entorno');
       { id: 'u-org', organizacion_id: 'o-1', rol: 'organizacion', nombre: 'Ana', estado: 'activo' },
       { id: 'u-adm', organizacion_id: null, rol: 'admin_fma', nombre: 'Admin', estado: 'activo' }],
     organizaciones: [{ id: 'o-1', nombre: 'Org Uno', estado: 'activa', tipo_identificacion: 'NIT', identificacion: '900' }],
-    modulos: [{ id: 'mod-1', estado: 'publicado' }, { id: 'mod-2', estado: 'publicado' }],   // mod-3 y mod-4 en borrador: la base no los devuelve
-    contenidos: [{ id: 'rec-prevencion', estado: 'publicado', publico: ['organizacion', 'colaborador'] }],
+    // Lo publicado que devuelve la base (RLS): versiones 1.0 de mod-1 y mod-2; mod-3 y mod-4 siguen en revisión y no llegan.
+    modulo_versiones: TH.data.modulos.filter(m => ['mod-1', 'mod-2'].includes(m.id)).map(m => ({ id: 'modv-' + m.id + '-1', modulo_id: m.id, estado: 'publicado', datos: Object.assign(JSON.parse(JSON.stringify(m)), { version: '1.0' }) })),
+    contenidos: [{ id: 'rec-prevencion', estado: 'publicado', publico: ['organizacion', 'colaborador'], datos: JSON.parse(JSON.stringify(TH.data.contenidos.find(c => c.id === 'rec-prevencion'))) }],
     asignaciones_modulo: [{ user_id: 'u-col', modulo_id: 'mod-1' }],
     progreso: [], invitaciones: [], diagnosticos: [], planes: [], acciones: []
   };
@@ -142,11 +143,6 @@ const { crear } = require('./lib/entorno');
   await h.ir('/fma/organizaciones/detalle?id=o-1');
   ok(/Org Uno/.test(h.texto()) && /Autodiagnóstico/.test(h.texto()) && /Plan de acción/.test(h.texto()) && /1 de 1 módulos/.test(h.texto()), 'Detalle de organización: resumen de diagnóstico, plan y formación');
   ok(/Beto/.test(h.texto()) && !!h.q('[data-action="fma-persona-estado"][data-id="u-org2"]'), 'Detalle: FMA puede suspender a un responsable concreto');
-  await h.ir('/fma/formacion');
-  await h.click('[data-action="fma-publicar"]'); await h.click('[data-confirmar]'); await sleep(300);
-  const pub = llamadas.find(l => l.rpc === 'publicar_catalogo');
-  ok(pub && pub.args.p_tipo === 'modulo' && typeof pub.args.p_publicar === 'boolean', 'Formación y biblioteca: publicar/retirar llama a publicar_catalogo');
-
   ok(w.localStorage.length === 0, 'Nada en localStorage');
   console.log('\n' + h.cuenta.pasos + ' verificaciones · ' + h.cuenta.fallos + ' fallos'); process.exit(h.cuenta.fallos ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });
