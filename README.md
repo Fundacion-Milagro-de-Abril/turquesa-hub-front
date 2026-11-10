@@ -13,6 +13,7 @@ El backend (Supabase: Auth, PostgreSQL y RLS) vive en un repositorio privado apa
 | `public/` | El sitio: `index.html`, `css/`, `js/` (componentes, vistas, servicios, adaptadores), `assets/` y `CNAME` (dominio). |
 | `config/` | `env.desarrollo.js` y `env.produccion.js`; el build copia el de producción a `js/env.js`. |
 | `tools/build.js` | Genera `dist/` sin datos de prueba y verifica que el paquete sea válido. |
+| `docs/` | `ARCHITECTURE.md` (capas y adaptadores), `USER_FLOWS.md` (flujos), `QA_CHECKLIST.md` (QA) y `API_CONTRACT.md` (contrato del adaptador HTTP de rc4, que usan las pruebas con API simulada). El backend actual es Supabase. |
 | `tests/` | Pruebas: humo (desarrollo), integración en modo producción con API simulada y paquete de producción. |
 
 ## Ejecutar en local (con datos de demostración, sin backend)
