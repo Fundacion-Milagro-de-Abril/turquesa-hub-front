@@ -5,6 +5,7 @@
    Ejecutar: node tests/produccion.js */
 const { execFileSync } = require('child_process'); const path = require('path'); const fs = require('fs');
 const { JSDOM, VirtualConsole } = require('jsdom');
+const { CLAVE, hay } = require('./lib/clave-demo');
 const RAIZ = path.resolve(__dirname, '..'); const DIST = path.join(RAIZ, 'dist');
 let fallos = 0, pasos = 0; const ok = (c, m) => { pasos++; if (!c) { fallos++; console.log('  ✗ ' + m); } else console.log('  ✓ ' + m); };
 (async () => {
@@ -15,11 +16,11 @@ let fallos = 0, pasos = 0; const ok = (c, m) => { pasos++; if (!c) { fallos++; c
   const html = fs.readFileSync(path.join(DIST, 'index.html'), 'utf8');
   ok(!/<!-- dev:start -->|src="js\/dev\//.test(html) && /js\/env\.js/.test(html), 'index.html de producción sin bloque de desarrollo');
   ok(/entorno: 'produccion'/.test(fs.readFileSync(path.join(DIST, 'js', 'env.js'), 'utf8')), 'env.js de producción');
-  let hallazgos = []; (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (/\.(js|html)$/.test(e.name)) { const t = fs.readFileSync(p, 'utf8'); if (/Turquesa2026\*|@fma\.demo|cafeandino\.demo|TH\.dev = \{/.test(t)) hallazgos.push(path.relative(DIST, p)); } } })(DIST);
+  let hallazgos = []; (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (/\.(js|html)$/.test(e.name)) { const t = fs.readFileSync(p, 'utf8'); if ((CLAVE && t.includes(CLAVE)) || /@fma\.demo|cafeandino\.demo|TH\.dev = \{/.test(t)) hallazgos.push(path.relative(DIST, p)); } } })(DIST);
   ok(hallazgos.length === 0, 'Ningún archivo de dist/ contiene cuentas ni contraseñas de prueba');
   ok(!fs.existsSync(path.join(DIST, 'reservado')) && !fs.existsSync(path.join(DIST, 'js', 'reservado')), 'Los módulos reservados del Sello no se despliegan');
   const desarrollo = execFileSync('node', [path.join(RAIZ, 'tools', 'build.js'), 'desarrollo', '--out', 'dist-dev'], { encoding: 'utf8' });
-  ok(/generado/.test(desarrollo) && fs.existsSync(path.join(RAIZ, 'dist-dev', 'js', 'dev', 'semilla.js')), 'La construcción de desarrollo conserva la semilla'); fs.rmSync(path.join(RAIZ, 'dist-dev'), { recursive: true, force: true });
+  ok(/generado/.test(desarrollo) && (!hay || fs.existsSync(path.join(RAIZ, 'dist-dev', 'js', 'dev', 'semilla.js'))), 'La construcción de desarrollo conserva la semilla' + (hay ? '' : ' (omitido: sin semilla privada)')); fs.rmSync(path.join(RAIZ, 'dist-dev'), { recursive: true, force: true });
 
   console.log('\n[Comportamiento sin backend disponible]');
   const inl = html.replace(/<script src="([^"]+)"><\/script>/g, (m, src) => '<script>' + fs.readFileSync(path.join(DIST, src), 'utf8').replace(/supabaseUrl:[^\n]*\n|supabaseKey:[^\n]*\n/g, '').replace(/<\/script/g, '<\\/script') + '</script>').replace(/<link rel="stylesheet"[^>]*>/g, '');

@@ -18,22 +18,17 @@ El backend (Supabase: Auth, PostgreSQL y RLS) vive en un repositorio privado apa
 
 ## Ejecutar en local (con datos de demostración, sin backend)
 
+Las cuentas y datos de demostración **no están en este repositorio público**: viven en el repositorio privado del back y se copian aquí solo para trabajar en local.
+
 ```bash
+tools/traer-semilla.sh                      # copia la semilla del repo privado hermano (queda en .gitignore)
 cd public && python3 -m http.server 8765    # http://localhost:8765
 ```
-
-Las cuentas de demostración (contraseña `Turquesa2026*`) son ficticias, viven solo en el navegador y **no existen en producción**.
-
-| Perfil | Correo |
-|---|---|
-| Administración FMA | `turquesa@fma.demo` |
-| Organización con diagnóstico y plan | `talento@cafeandino.demo` |
-| Colaboradora | `laura.gomez@cafeandino.demo` |
 
 ## Pruebas y paquete de producción
 
 ```bash
-cd tests && npm ci && npm test      # 14 verificaciones de paquete + suites de humo e integración
+cd tests && npm ci && npm test      # sin la semilla privada se omiten las suites smoke y api-simulada
 node tools/build.js produccion      # genera dist/
 ```
 

@@ -32,8 +32,10 @@ if (entorno === 'produccion') {
   if (fs.existsSync(path.join(out, 'js', 'dev'))) problemas.push('dist/js/dev existe');
   if (/src="js\/dev\//.test(html)) problemas.push('index.html carga scripts de js/dev/');
   if (!/entorno: 'produccion'/.test(fs.readFileSync(path.join(out, 'js', 'env.js'), 'utf8'))) problemas.push('env.js no es de producción');
+  // La contraseña de las cuentas de demostración no está en el repositorio: si existe la semilla privada, se comprueba que no llegue al paquete.
+  let claveDemo = ''; try { const m = /claveCuentasDePrueba:\s*'([^']+)'/.exec(fs.readFileSync(path.join(origen, 'js', 'dev', 'semilla.js'), 'utf8')); claveDemo = m ? m[1] : ''; } catch (_) { }
   const todo = []; (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (/\.(js|html)$/.test(e.name)) todo.push(p); } })(out);
-  for (const f of todo) { const t = fs.readFileSync(f, 'utf8'); if (/Turquesa2026\*|@fma\.demo|cafeandino\.demo/.test(t)) problemas.push('cuentas o contraseñas de prueba en ' + path.relative(out, f)); }
+  for (const f of todo) { const t = fs.readFileSync(f, 'utf8'); if ((claveDemo && t.includes(claveDemo)) || /@fma\.demo|cafeandino\.demo/.test(t)) problemas.push('cuentas o contraseñas de prueba en ' + path.relative(out, f)); }
   if (problemas.length) { console.error('Paquete de producción inválido:\n - ' + problemas.join('\n - ')); process.exit(1); }
 }
 console.log('Paquete ' + entorno + ' generado en ' + path.relative(raiz, out) + '/');

@@ -4,3 +4,6 @@ dist/
 .vscode/
 .env
 .env.*
+
+# Semilla de demostración: vive en el repositorio privado (ver tools/traer-semilla.sh)
+public/js/dev/semilla.js

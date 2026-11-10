@@ -4,6 +4,7 @@
    misma capa de dominio. Se ejecuta el escenario completo (tests/lib/escenario.js) y se verifica que cada módulo
    se comunica con la API: autenticación por cookie, carga de datos por espacio, mutaciones y respuestas del servidor.
    Ejecutar: node tests/api-simulada.js */
+const { omitirSinSemilla, CLAVE: CLAVE_DEMO } = require('./lib/clave-demo'); omitirSinSemilla('api-simulada');
 const { crear } = require('./lib/entorno'); const { crearServidorSimulado } = require('./lib/servidor-simulado'); const escenario = require('./lib/escenario');
 (async () => {
   const servidor = crearServidorSimulado(); await servidor.listo;
@@ -37,7 +38,7 @@ const { crear } = require('./lib/entorno'); const { crearServidorSimulado } = re
   ok(hubo('GET', /^\/admin\/organizaciones$/) && hubo('POST', /^\/admin\/organizaciones\/[^/]+\/estado$/) && hubo('POST', /^\/admin\/usuarios$/) && hubo('PATCH', /^\/admin\/instrumento\/preguntas\/q22\/alcance$/) && hubo('POST', /^\/admin\/sello\/intereses\/[^/]+\/gestion$/) && hubo('GET', /^\/admin\/auditoria$/), 'Administración: organizaciones, usuarios, instrumento, Sello y auditoría');
   const sospechosas = L.filter(l => typeof l.cuerpo === 'object' && l.cuerpo && ('orgId' in l.cuerpo || 'rol' in l.cuerpo || 'permisos' in l.cuerpo) && !/^\/admin\/usuarios/.test(l.ruta)); if (sospechosas.length) console.log('    · ', JSON.stringify(sospechosas.slice(0, 3)));
   ok(!L.some(l => typeof l.cuerpo === 'object' && l.cuerpo && ('orgId' in l.cuerpo || 'rol' in l.cuerpo || 'permisos' in l.cuerpo) && !/^\/admin\/usuarios/.test(l.ruta)), 'Las peticiones de organización y colaborador no envían orgId, rol ni permisos (los decide el servidor)');
-  ok(w.localStorage.length === 0 && !JSON.stringify(w.sessionStorage.getItem('th-sesion') || '').includes('Turquesa2026'), 'Producción: localStorage vacío y sin contraseñas en el cliente');
+  ok(w.localStorage.length === 0 && !JSON.stringify(w.sessionStorage.getItem('th-sesion') || '').includes(CLAVE_DEMO), 'Producción: localStorage vacío y sin contraseñas en el cliente');
   ok(!JSON.stringify(TH.store.get().usuarios).includes('"credencial"'), 'El servidor no expone credenciales al cliente');
   process.exit(h.resumen());
 })().catch(e => { console.error('ERROR FATAL', e); process.exit(1); });

@@ -1,7 +1,7 @@
 /* Escenario de prueba completo de Turquesa Hub. Se ejecuta igual en entorno de desarrollo (adaptador local,
    smoke.js) y en entorno de producción contra el servidor simulado (api-simulada.js). `opc.remoto` indica el segundo
    caso; `opc.estado()` devuelve el estado del servidor (en local, el almacén del propio cliente). */
-const CLAVE = 'Turquesa2026*';
+const { CLAVE } = require('./clave-demo');
 module.exports = async function escenario(h, opc) {
   const { w, ok, ir, texto, nav, q, click, submit, cambiar, recorrer, login, logout, sleep } = h;
   const TH = w.TH; const remoto = !!opc.remoto; const estado = opc.estado;
