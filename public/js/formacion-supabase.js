@@ -189,7 +189,7 @@ window.TH = window.TH || {};
     async 'sb-persona-estado'(el) {
       const e = el.dataset.estado; const n = el.dataset.nombre;
       const textos = { suspendido: ['Suspender acceso', n + ' no podrá entrar hasta que lo reactives.', 'Suspender'], activo: ['Reactivar acceso', n + ' podrá volver a entrar.', 'Reactivar'], desvinculado: ['Desvincular colaborador', n + ' perderá el acceso de forma definitiva. Su avance se conserva en tu resumen.', 'Desvincular'] }[e];
-      if (!(await TH.ui.confirmar({ titulo: textos[0], texto: esc(textos[1]), peligro: e !== 'activo', aceptar: textos[2] }))) return;
+      if (!(await TH.ui.confirmar({ titulo: textos[0], texto: textos[1], peligro: e !== 'activo', aceptar: textos[2] }))) return;
       const r = await sb.from('perfiles').update({ estado: e }).eq('id', el.dataset.id).select('id');
       if (r.error || !(r.data || []).length) { TH.ui.toast(r.error ? UI.msg(r.error) : 'No fue posible cambiar el estado.', 'error', 5000); return; }
       TH.ui.toast('Listo.', 'exito'); TH.router.recargar();

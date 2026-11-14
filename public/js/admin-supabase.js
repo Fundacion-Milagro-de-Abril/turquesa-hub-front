@@ -227,7 +227,7 @@ window.TH = window.TH || {};
       const suspender = el.dataset.estado === 'suspendida';
       const si = await TH.ui.confirmar({
         titulo: suspender ? 'Suspender organización' : 'Reactivar organización', peligro: suspender, aceptar: suspender ? 'Suspender' : 'Reactivar',
-        texto: suspender ? 'Todas las cuentas de <strong>' + esc(el.dataset.nombre) + '</strong> perderán el acceso de inmediato.' : 'Las cuentas de <strong>' + esc(el.dataset.nombre) + '</strong> recuperarán el acceso.'
+        textoHtml: suspender ? 'Todas las cuentas de <strong>' + esc(el.dataset.nombre) + '</strong> perderán el acceso de inmediato.' : 'Las cuentas de <strong>' + esc(el.dataset.nombre) + '</strong> recuperarán el acceso.'
       });
       if (!si) return;
       const r = await sb.from('organizaciones').update({ estado: el.dataset.estado }).eq('id', el.dataset.id).select('id');
@@ -252,7 +252,7 @@ window.TH = window.TH || {};
     async 'fma-persona-estado'(el) {
       const suspender = el.dataset.estado === 'suspendido';
       const si = await TH.ui.confirmar({ titulo: suspender ? 'Suspender acceso' : 'Reactivar acceso', peligro: suspender, aceptar: suspender ? 'Suspender' : 'Reactivar',
-        texto: esc(el.dataset.nombre) + (suspender ? ' no podrá entrar hasta que se reactive.' : ' podrá volver a entrar.') });
+        texto: el.dataset.nombre + (suspender ? ' no podrá entrar hasta que se reactive.' : ' podrá volver a entrar.') });
       if (!si) return;
       const r = await sb.from('perfiles').update({ estado: el.dataset.estado }).eq('id', el.dataset.id).select('id');
       if (r.error || !(r.data || []).length) { TH.ui.toast(r.error ? msg(r.error) : 'No fue posible cambiar el estado.', 'error', 6000); return; }

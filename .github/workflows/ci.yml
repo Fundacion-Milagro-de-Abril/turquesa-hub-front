@@ -17,11 +17,24 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # historial completo para el escaneo de secretos
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Pruebas del frontend
+
+      - name: Escaneo de secretos (gitleaks, todo el historial)
+        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.21.2 detect --source /repo --config /repo/.gitleaks.toml --redact --no-banner
+
+      - name: Dependencias sin vulnerabilidades altas o críticas
         working-directory: tests
         run: |
           npm ci
-          npm test
+          npm audit --audit-level=high
+
+      # Incluye la prueba en navegador real (Chrome viene instalado en ubuntu-24.04).
+      - name: Pruebas del frontend
+        working-directory: tests
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: npm test

@@ -239,7 +239,8 @@ TH.ui = {
   cerrarModal() { if (TH.ui._cerrarModal) TH.ui._cerrarModal(); },
   confirmar(opts) {
     return new Promise(resolve => {
-      this.modal({ titulo: opts.titulo || 'Confirmar', cuerpo: '<p>' + opts.texto + '</p>',
+      // `texto` se ESCAPA siempre; para HTML de confianza (ya escapado por quien llama) se usa `textoHtml` de forma explícita.
+      this.modal({ titulo: opts.titulo || 'Confirmar', cuerpo: '<p>' + (opts.textoHtml != null ? opts.textoHtml : esc(opts.texto || '')) + '</p>',
         pie: '<button type="button" class="btn btn--secundario" data-modal-cerrar>' + esc(opts.cancelar || 'Cancelar') + '</button><button type="button" class="btn ' + (opts.peligro ? 'btn--peligro' : 'btn--primario') + '" data-confirmar>' + esc(opts.aceptar || 'Confirmar') + '</button>',
         alAbrir: (root) => { root.querySelector('[data-confirmar]').addEventListener('click', () => { resolve(true); TH.ui.cerrarModal(); }); },
         alCerrar: () => resolve(false) });

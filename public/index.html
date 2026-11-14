@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Turquesa Hub: plataforma de gestión organizacional guiada para la prevención de las violencias basadas en género. Fundación Milagro de Abril.">
   <meta name="robots" content="noindex">
+  <!-- Política de seguridad del contenido (F05). Solo se cargan scripts, estilos, fuentes e imágenes del propio sitio
+       y solo se conecta con el propio sitio y con el proyecto de Supabase de producción.
+       'unsafe-inline' en estilos: las vistas usan atributos style="" (sin scripts en línea: no se permite 'unsafe-inline' en script-src).
+       frame-ancestors y las demás cabeceras no se pueden fijar desde <meta>; GitHub Pages no permite cabeceras propias (ver informe de cierre). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://xfifkecattmqadvqrfod.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
   <!--
     ENTORNO DE EJECUCIÓN: lo define js/env.js (config/env.desarrollo.js o config/env.produccion.js).
     El paquete de producción se genera con `node tools/build.js produccion` → dist/, que sustituye js/env.js,
@@ -17,12 +22,8 @@
   <link rel="icon" type="image/png" sizes="64x64" href="assets/branding/fma-isotipo-64.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/branding/fma-isotipo-180.png">
   <meta name="theme-color" content="#0B7F95">
-  <!-- Tipografías institucionales (cap. 08): Poppins · Nunito Sans · Lora, cargadas desde su fuente oficial;
-       sustitutas locales definidas en css/tokens.css. Si la política de datos exige evitar servicios de terceros,
-       ingeniería puede alojarlas en assets/fonts (licencia OFL) y reemplazar estas tres líneas. -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;1,400;1,500&display=swap">
+  <!-- Tipografías institucionales (cap. 08): Poppins · Nunito Sans · Lora, alojadas en assets/fonts (licencia OFL). -->
+  <link rel="stylesheet" href="css/fuentes.css">
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">

@@ -1,0 +1,17 @@
+# Escaneo de secretos (gitleaks) · F05. Reglas por defecto + claves de Supabase.
+title = "Turquesa Hub"
+
+[extend]
+useDefault = true
+
+# Una clave SECRETA de Supabase nunca debe estar en el repositorio.
+[[rules]]
+id = "supabase-clave-secreta"
+description = "Clave secreta de Supabase (sb_secret_...)"
+regex = '''sb_secret_[A-Za-z0-9_-]{16,}'''
+keywords = ["sb_secret_"]
+
+# La clave PUBLISHABLE es pública por diseño (va en el navegador; la seguridad la dan las políticas RLS).
+[allowlist]
+description = "Clave publishable de Supabase"
+regexes = ['''sb_publishable_[A-Za-z0-9_-]+''']
