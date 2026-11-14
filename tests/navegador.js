@@ -58,6 +58,23 @@ const CANDIDATOS = [process.env.CHROME_PATH, '/Applications/Google Chrome.app/Co
   const enLinea = await pagina.evaluate(() => { window.__enLinea = false; const s = document.createElement('script'); s.textContent = 'window.__enLinea = true'; document.head.appendChild(s); return window.__enLinea; });
   ok(enLinea === false, 'Un script en línea inyectado no se ejecuta');
 
+  // Accesibilidad de la zona pública (F06, criterio 6): axe-core WCAG 2.x A y AA. Contexto aparte que ignora la CSP
+  // solo para poder inyectar axe; el sitio que ve la gente sí la aplica (verificado arriba).
+  console.log('[Accesibilidad · zona pública]');
+  const axe = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
+  const pa = await (await navegador.newContext({ bypassCSP: true })).newPage();
+  await pa.route(SUPABASE + '/**', r => r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*' }, body: 'null' }));
+  for (const r of ['', '#/como-acceder', '#/herramientas', '#/autocuidado', '#/privacidad', '#/acceso', '#/activar-invitacion', '#/recuperar-acceso']) {
+    for (const ancho of [1280, 375]) {
+      await pa.setViewportSize({ width: ancho, height: 900 });
+      await pa.goto(base + 'index.html' + r, { waitUntil: 'networkidle' }); await pa.waitForTimeout(200);
+      await pa.evaluate(axe);
+      const v = await pa.evaluate(async () => (await window.axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] })).violations.map(x => x.id + ' (' + x.nodes.length + ')'));
+      const desborde = await pa.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+      ok(v.length === 0 && !desborde, (r || '#/') + ' · ' + ancho + ' px: sin violaciones de accesibilidad' + (ancho === 375 ? ' y sin desborde horizontal' : '') + (v.length ? ': ' + v.join(', ') : '') + (desborde ? ' · DESBORDA' : ''));
+    }
+  }
+
   await navegador.close(); servidor.close();
   console.log('\n' + pasos + ' verificaciones · ' + fallos + ' fallos'); process.exit(fallos ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });

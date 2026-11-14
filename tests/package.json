@@ -5,17 +5,19 @@
   "scripts": {
     "smoke": "node smoke.js",
     "api": "node api-simulada.js",
-    "produccion": "node produccion.js && node supabase.js && node diagnostico.js && node plan.js && node formacion.js && node editor.js && node escape.js && node navegador.js && node seguridad.js",
-    "supabase": "node supabase.js && node diagnostico.js && node plan.js && node formacion.js && node editor.js && node escape.js && node navegador.js && node seguridad.js",
-    "diagnostico": "node diagnostico.js && node plan.js && node formacion.js && node editor.js && node escape.js && node navegador.js && node seguridad.js",
-    "plan": "node plan.js && node formacion.js && node editor.js && node escape.js && node navegador.js && node seguridad.js",
-    "formacion": "node formacion.js && node editor.js && node escape.js && node navegador.js && node seguridad.js",
-    "editor": "node editor.js && node escape.js && node navegador.js && node seguridad.js",
-    "escape": "node escape.js && node navegador.js && node seguridad.js",
-    "navegador": "node navegador.js && node seguridad.js",
-    "seguridad": "node seguridad.js",
+    "produccion": "node produccion.js && node supabase.js && node diagnostico.js && node plan.js && node formacion.js && node editor.js && node escape.js && node navegador.js && node seguridad.js && node publico.js && node enlaces.js",
+    "supabase": "node supabase.js && node diagnostico.js && node plan.js && node formacion.js && node editor.js && node escape.js && node navegador.js && node seguridad.js && node publico.js && node enlaces.js",
+    "diagnostico": "node diagnostico.js && node plan.js && node formacion.js && node editor.js && node escape.js && node navegador.js && node seguridad.js && node publico.js && node enlaces.js",
+    "plan": "node plan.js && node formacion.js && node editor.js && node escape.js && node navegador.js && node seguridad.js && node publico.js && node enlaces.js",
+    "formacion": "node formacion.js && node editor.js && node escape.js && node navegador.js && node seguridad.js && node publico.js && node enlaces.js",
+    "editor": "node editor.js && node escape.js && node navegador.js && node seguridad.js && node publico.js && node enlaces.js",
+    "escape": "node escape.js && node navegador.js && node seguridad.js && node publico.js && node enlaces.js",
+    "navegador": "node navegador.js && node seguridad.js && node publico.js && node enlaces.js",
+    "seguridad": "node seguridad.js && node publico.js && node enlaces.js",
+    "publico": "node publico.js",
+    "enlaces": "node enlaces.js",
     "axe": "node axe.js",
-    "test": "node smoke.js && node api-simulada.js && node produccion.js && node supabase.js && node diagnostico.js && node plan.js && node formacion.js && node editor.js && node escape.js && node navegador.js && node seguridad.js"
+    "test": "node smoke.js && node api-simulada.js && node produccion.js && node supabase.js && node diagnostico.js && node plan.js && node formacion.js && node editor.js && node escape.js && node navegador.js && node seguridad.js && node publico.js && node enlaces.js"
   },
   "devDependencies": { "jsdom": "24.1.3", "playwright": "1.64.1", "axe-core": "4.14.0" }
 }

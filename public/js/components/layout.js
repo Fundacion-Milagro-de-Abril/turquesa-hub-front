@@ -61,8 +61,9 @@ window.TH = window.TH || {};
      logo FMA en blanco (versión negativa oficial). */
   function marca(inversa, compacta) {
     const logo = inversa ? 'assets/branding/fma-logo-negativo-blanco.png' : 'assets/branding/fma-logo-horizontal.png';
-    return '<a class="marca ' + (inversa ? 'marca--inversa' : '') + (compacta ? ' marca--compacta' : '') + '" href="#/" aria-label="Turquesa Hub · Sello Turquesa · Un servicio de Fundación Milagro de Abril. Ir al inicio">' +
-      '<span class="marca__texto"><span class="marca__nombre">Turquesa Hub</span><span class="marca__sub">Sello Turquesa</span></span>' +
+    return '<a class="marca ' + (inversa ? 'marca--inversa' : '') + (compacta ? ' marca--compacta' : '') + '" href="#/">' +
+      // Sin aria-label: el nombre accesible es el texto visible más una aclaración solo para lectores de pantalla (WCAG 2.5.3).
+      '<span class="marca__texto"><span class="marca__nombre">Turquesa Hub</span> <span class="marca__sub">Sello Turquesa</span></span><span class="sr-only"> · Un servicio de Fundación Milagro de Abril. Ir al inicio</span>' +
       '<span class="marca__linea" aria-hidden="true"></span>' +
       '<img class="marca__fma" src="' + logo + '" alt="" width="895" height="354">' +
       (inversa ? '' : '<img class="marca__fma-iso" src="assets/branding/fma-isotipo.png" alt="" width="442" height="442">') + '</a>';
@@ -95,16 +96,18 @@ window.TH = window.TH || {};
     publico(contenido, rutaActual) {
       const sesion = TH.auth.sesion();
       const inicioRol = sesion ? (TH.util.catalogo(TH.data.catalogos.rolesSistema, sesion.rol) || {}).inicio : null;
-      const links = [['/conocer-turquesa-hub', 'Cómo funciona'], ['/sello-turquesa', 'Sello Turquesa']];
+      // TH.publicoConfig (opcional) permite a la zona pública de producción cambiar menú, botones y pie (ver js/publico-supabase.js).
+      const cfg = TH.publicoConfig || {};
+      const links = cfg.enlaces || [['/conocer-turquesa-hub', 'Cómo funciona'], ['/sello-turquesa', 'Sello Turquesa']];
       return '<div class="publico"><header class="publico__header"><div class="publico__header-inner">' + marca() +
         '<button type="button" class="btn btn--terciario btn-icono publico__menu-btn" data-action="menu-publico" aria-label="Abrir menú" aria-expanded="false">' + ic('menu') + '</button>' +
         '<nav class="publico__nav" id="nav-publico" aria-label="Navegación principal">' + links.map(l => '<a href="#' + l[0] + '" ' + (rutaActual === l[0] ? 'aria-current="page"' : '') + '>' + esc(l[1]) + '</a>').join('') +
-        (inicioRol ? '<a class="btn btn--primario btn--sm" href="#' + inicioRol + '">Ir a mi espacio</a>' : '<a href="#/registro">Registrarse</a><a class="btn btn--primario btn--sm" href="#/acceso">Iniciar sesión</a>') + '</nav></div></header>' +
+        (inicioRol ? '<a class="btn btn--primario btn--sm" href="#' + inicioRol + '">Ir a mi espacio</a>' : (cfg.botones || '<a href="#/registro">Registrarse</a><a class="btn btn--primario btn--sm" href="#/acceso">Iniciar sesión</a>')) + '</nav></div></header>' +
         '<main class="publico__main" id="main" tabindex="-1">' + (TH.remoto && TH.remoto.ultimoError ? '<div class="publico__aviso">' + TH.ui.alerta('alerta', 'Servicio no disponible', esc(TH.remoto.ultimoError) + ' Algunas funciones (registro, acceso) pueden no estar disponibles hasta que se restablezca la conexión. <button type="button" class="btn btn--terciario btn--sm" data-action="reintentar">Reintentar</button>') + '</div>' : '') + contenido + '</main>' +
         '<footer class="publico__footer"><div class="publico__footer-inner">' +
         '<div class="publico__footer-fma"><img src="assets/branding/fma-logo-horizontal.png" alt="Fundación Milagro de Abril" width="895" height="354"><p class="publico__footer-descriptor"><strong>Fundación Milagro de Abril</strong>Laboratorio de Innovación Social</p><p class="texto-sm mb-0" style="max-width:42ch">Turquesa Hub · Sello Turquesa: plataforma de gestión organizacional para la prevención de las violencias basadas en género. Un servicio de Fundación Milagro de Abril.</p></div>' +
-        '<div><h4>Plataforma</h4><a href="#/conocer-turquesa-hub">Cómo funciona</a><a href="#/registro">Registrar mi organización</a><a href="#/acceso">Iniciar sesión</a><a href="#/sello-turquesa">Sello Turquesa</a></div>' +
-        '<div><h4>Institucional</h4><a href="#/privacidad">Política de tratamiento de datos</a><a href="#/condiciones">Condiciones de uso</a><a href="#/conocer-turquesa-hub">Fundación Milagro de Abril</a></div></div>' +
+        (cfg.pie || '<div><h4>Plataforma</h4><a href="#/conocer-turquesa-hub">Cómo funciona</a><a href="#/registro">Registrar mi organización</a><a href="#/acceso">Iniciar sesión</a><a href="#/sello-turquesa">Sello Turquesa</a></div>' +
+        '<div><h4>Institucional</h4><a href="#/privacidad">Política de tratamiento de datos</a><a href="#/condiciones">Condiciones de uso</a><a href="#/conocer-turquesa-hub">Fundación Milagro de Abril</a></div>') + '</div>' +
         '<div class="publico__footer-cierre"><p class="publico__footer-eslogan">Renacer · Emerger · Trascender</p><p class="publico__footer-legal">Turquesa Hub · Sello Turquesa · Fundación Milagro de Abril · Manizales, Colombia · v' + esc(TH.config.producto.version) + '. El autodiagnóstico es orientativo y no constituye una evaluación validada, cumplimiento legal ni certificación. Esta plataforma no recibe denuncias ni gestiona casos individuales de violencia.</p></div></footer></div>';
     },
 
@@ -117,7 +120,7 @@ window.TH = window.TH || {};
         '<a href="#' + m.ruta + '" ' + (ctx.ruta === m.ruta || (m.ruta !== '/' + rol + '/inicio' && ctx.ruta.startsWith(m.ruta + '/') && !menu.some(x => x.ruta === ctx.ruta)) ? 'aria-current="page"' : '') + '>' + ic(m.icono) + '<span>' + esc(m.texto) + '</span></a>').join('');
       return '<div class="app" id="app-shell" style="--th-perfil:' + (info.color || 'var(--th-turquesa)') + '">' +
         '<div class="sidebar-overlay" data-action="cerrar-menu"></div>' +
-        '<aside class="sidebar" aria-label="Menú de ' + esc(info.espacio || '') + '"><div class="sidebar__marca"><a class="marca" href="#/" aria-label="Turquesa Hub · Sello Turquesa. Ir al inicio"><span class="marca__texto"><span class="marca__nombre">Turquesa Hub</span><span class="marca__sub">Sello Turquesa</span></span></a></div>' +
+        '<aside class="sidebar" aria-label="Menú de ' + esc(info.espacio || '') + '"><div class="sidebar__marca"><a class="marca" href="#/"><span class="marca__texto"><span class="marca__nombre">Turquesa Hub</span> <span class="marca__sub">Sello Turquesa</span></span><span class="sr-only"> · Ir al inicio</span></a></div>' +
         '<div class="sidebar__espacio">' + esc(info.espacio || '') + '</div>' +
         '<nav class="sidebar__nav">' + nav + '</nav>' +
         '<div class="sidebar__pie">' + (org ? '<strong>' + esc(org.nombre) + '</strong>' : '') + endoso(true) + '<span><a href="#/privacidad">Privacidad</a> · <a href="#/condiciones">Condiciones</a> · v' + esc(TH.config.producto.version) + '</span></div></aside>' +
