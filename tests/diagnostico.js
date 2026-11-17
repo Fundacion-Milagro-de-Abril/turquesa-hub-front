@@ -128,9 +128,9 @@ const { crear } = require('./lib/entorno');
   if (nc) { await h.click(nc); await h.click('[data-confirmar]'); await sleep(300); }
   ok(!!nc && diag.ciclo === 2 && archivados.length === 1 && archivados[0].estado === 'completado', 'Nuevo ciclo: el anterior queda archivado completado y empieza el ciclo 2');
 
-  // Lo que aún no está conectado (reportes) sigue «próximamente»
+  // Lo que sigue apagado (reportes) muestra «Sección no disponible»
   await h.ir('/organizacion/reportes');
-  ok(/se habilitarán próximamente/.test(h.texto()), 'Los reportes siguen «próximamente»');
+  ok(/Sección no disponible/.test(h.texto()), 'Los reportes (apagados) muestran «Sección no disponible»');
 
   ok(w.localStorage.length === 0, 'Nada en localStorage');
   console.log('\n' + h.cuenta.pasos + ' verificaciones · ' + h.cuenta.fallos + ' fallos'); process.exit(h.cuenta.fallos ? 1 : 0);

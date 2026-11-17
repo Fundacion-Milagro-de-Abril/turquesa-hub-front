@@ -130,7 +130,7 @@ const { crear } = require('./lib/entorno');
   await A.ingresar('ana@org.test', 'Clave12345*');
   w.location.hash = '#/organizacion/reportes'; await sleep(400);
   const texto = w.document.getElementById('app').textContent;
-  ok(/se habilitarán próximamente/.test(texto), 'Las rutas privadas informan que el módulo se habilita próximamente');
+  ok(/Sección no disponible/.test(texto), 'Las secciones apagadas muestran «Sección no disponible» con enlace al inicio');
   await A.salir();
   ok(!TH.auth.sesion() && TH.store.get().usuarios.length === 0, 'Cerrar sesión vacía la sesión y la caché');
   let guardado = false; try { guardado = w.localStorage.length > 0; } catch (_) { }

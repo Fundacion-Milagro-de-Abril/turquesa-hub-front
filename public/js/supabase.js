@@ -12,7 +12,7 @@
      - La sesión de Supabase se guarda en sessionStorage (se pierde al cerrar la pestaña), nunca en localStorage.
 
    Mientras los módulos de negocio no estén conectados (F02 en adelante), las rutas privadas muestran
-   "disponible próximamente" en vez de operar con datos que no se guardan.
+   «Sección no disponible» en vez de operar con datos que no se guardan (lo que sigue apagado: reportes, Sello, evidencias…).
    ============================================================ */
 window.TH = window.TH || {};
 
@@ -208,7 +208,7 @@ window.TH = window.TH || {};
       def.despues = null;
       def.render = function (ctx) {
         return '<section class="seccion" style="max-width:640px">' +
-          TH.ui.vacio('Tu acceso está activo', 'Hola, ' + TH.util.esc((ctx.usuario && ctx.usuario.nombre) || '') + '. Los módulos de Turquesa Hub (autodiagnóstico, plan de acción y formación) se habilitarán próximamente.', '<button type="button" class="btn btn--secundario" data-action="salir">Cerrar sesión</button>', 'escudo') +
+          TH.ui.vacio('Sección no disponible', 'Esta sección no está incluida en esta versión de Turquesa Hub. Puedes seguir trabajando desde tu inicio.', '<a class="btn btn--primario" href="#' + ((TH.util.catalogo(TH.data.catalogos.rolesSistema, TH.auth.rol()) || {}).inicio || '/') + '">Ir a mi inicio</a>', 'escudo') +
           '</section>';
       };
     });

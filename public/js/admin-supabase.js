@@ -42,7 +42,28 @@ window.TH = window.TH || {};
     ]);
     datos.orgs = lanzar(o) || []; datos.invs = lanzar(i) || [];
   }
-  TH.supabaseCargadores['/fma/inicio'] = cargarOrgs;
+  // Tablero: organizaciones e invitaciones, y un resumen de uso (diagnósticos, planes, formación y contenidos publicados).
+  TH.supabaseCargadores['/fma/inicio'] = async function () {
+    const [, d, p, f, m, c] = await Promise.all([
+      cargarOrgs(),
+      sb.from('diagnosticos').select('estado, archivado'),
+      sb.from('planes').select('id'),
+      sb.rpc('resumen_formacion_fma'),
+      sb.from('modulos').select('estado'),
+      sb.from('contenidos').select('estado')
+    ]);
+    const form = lanzar(f) || [];
+    datos.tablero = {
+      diagCompletos: (lanzar(d) || []).filter(x => x.estado === 'completado').length,
+      diagEnCurso: (lanzar(d) || []).filter(x => x.estado === 'en-curso' && !x.archivado).length,
+      planes: (lanzar(p) || []).length,
+      colaboradores: form.reduce((t, x) => t + x.colaboradores, 0),
+      completados: form.reduce((t, x) => t + x.completados, 0),
+      asignaciones: form.reduce((t, x) => t + x.asignaciones, 0),
+      modulosPub: (lanzar(m) || []).filter(x => x.estado === 'publicado').length,
+      contenidosPub: (lanzar(c) || []).filter(x => x.estado === 'publicado').length
+    };
+  };
   TH.supabaseCargadores['/fma/organizaciones'] = cargarOrgs;
   TH.supabaseCargadores['/fma/auditoria'] = async function () {
     const [a, p] = await Promise.all([
@@ -62,7 +83,22 @@ window.TH = window.TH || {};
     const pend = datos.invs.filter(vigente).length;
     return TH.ui.encabezado('Tablero general', 'Resumen de la plataforma.', '<a class="btn btn--primario" href="#/fma/organizaciones">Gestionar organizaciones</a>') +
       '<div class="grid grid--3">' + TH.ui.kpi('Organizaciones activas', act, '', 'turquesa') + TH.ui.kpi('Organizaciones suspendidas', sus, '', 'coral') + TH.ui.kpi('Invitaciones pendientes', pend, 'Vigentes y sin usar', 'violeta') + '</div>' +
-      TH.ui.alerta('info', 'Módulos en construcción', 'El autodiagnóstico, el plan de acción y la formación se habilitarán próximamente. Por ahora puedes crear organizaciones e invitar a sus responsables.');
+      (function () {
+        const t = datos.tablero || {};
+        const acceso = (ruta, icono, titulo, texto) => '<a class="card card--compacta" href="#' + ruta + '"><div class="flex items-center gap-3"><div class="icono-caja">' + TH.ui.icono(icono) + '</div><div><h3 class="card__titulo" style="font-size:var(--th-t-md)">' + esc(titulo) + '</h3><p class="card__sub mb-0">' + esc(texto) + '</p></div></div></a>';
+        return '<h2 class="mt-5" style="font-size:var(--th-t-lg)">Uso de la plataforma</h2><div class="grid grid-4">' +
+          TH.ui.kpi('Autodiagnósticos completos', String(t.diagCompletos || 0), (t.diagEnCurso || 0) + ' en curso') +
+          TH.ui.kpi('Planes de acción', String(t.planes || 0), 'organizaciones con plan') +
+          TH.ui.kpi('Colaboradores activos', String(t.colaboradores || 0), (t.completados || 0) + ' de ' + (t.asignaciones || 0) + ' módulos asignados completados') +
+          TH.ui.kpi('Publicado', String(t.modulosPub || 0) + ' / ' + String(t.contenidosPub || 0), 'módulos / contenidos de la biblioteca') + '</div>' +
+          (t.modulosPub ? '' : TH.ui.alerta('alerta', 'Aún no hay módulos publicados', 'Las organizaciones no pueden asignar formación hasta que publiques al menos un módulo en Formación (después de sus revisiones y aprobación).')) +
+          '<h2 class="mt-5" style="font-size:var(--th-t-lg)">Accesos rápidos</h2><div class="grid grid-3">' +
+          acceso('/fma/organizaciones', 'edificio', 'Organizaciones', 'Crear, invitar responsables, suspender y ver el detalle de cada una.') +
+          acceso('/fma/formacion', 'formacion', 'Formación', 'Versiones, revisiones y publicación de los módulos.') +
+          acceso('/fma/contenidos', 'biblioteca', 'Contenidos', 'Guías y fichas de la biblioteca.') +
+          acceso('/fma/equipo', 'personas', 'Equipo FMA', 'Administradores de la plataforma.') +
+          acceso('/fma/auditoria', 'historial', 'Trazabilidad', 'Quién hizo qué y cuándo.') + '</div>';
+      })();
   }
 
   function organizaciones() {

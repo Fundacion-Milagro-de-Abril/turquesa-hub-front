@@ -68,7 +68,7 @@ const { crear } = require('./lib/entorno');
   await entrar('u-col');
   await h.ir('/colaborador/inicio');
   ok(JSON.stringify(h.nav()) === JSON.stringify(['/colaborador/inicio', '/colaborador/formacion', '/colaborador/mi-progreso', '/colaborador/recursos', '/colaborador/perfil']), 'Menú del colaborador: inicio, formación, progreso, recursos y cuenta');
-  ok(!/se habilitarán próximamente/.test(h.texto()) && /Hola, Laura/.test(h.texto()), 'Inicio del colaborador: pantalla de rc4 conectada');
+  ok(!/Sección no disponible|próximamente/i.test(h.texto()) && /Hola, Laura/.test(h.texto()), 'Inicio del colaborador: pantalla de rc4 conectada');
   await h.ir('/colaborador/formacion');
   ok(/Comprender las violencias/.test(h.texto()) && !new RegExp(TH.data.modulos.find(m => m.id === 'mod-2').titulo.slice(0, 20)).test(h.texto()), 'Mi formación: solo el módulo asignado (no el publicado sin asignar)');
   ok(TH.api.formacion.modulos().map(m => m.id).join() === 'mod-1,mod-2', 'Catálogo: solo los módulos publicados (mod-3 y mod-4 siguen en borrador)');
@@ -133,6 +133,8 @@ const { crear } = require('./lib/entorno');
   /* ---------- FMA ---------- */
   console.log('[FMA]');
   await entrar('u-adm');
+  await h.ir('/fma/inicio');
+  ok(/Uso de la plataforma/.test(h.texto()) && /Accesos rápidos/.test(h.texto()) && !/en construcción|próximamente/i.test(h.texto()), 'Tablero FMA: resumen de uso y accesos rápidos, sin avisos de «en construcción»');
   await h.ir('/fma/equipo');
   ok(/Otra/.test(h.texto()) && !h.q('[data-action="fma-persona-estado"][data-id="u-adm"]') && !!h.q('[data-action="fma-persona-estado"][data-id="u-adm2"]'), 'Equipo FMA: lista el equipo; no ofrece suspenderse a sí mismo');
   await h.click('[data-action="fma-admin-invitar"]');
