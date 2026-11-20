@@ -63,8 +63,9 @@ const CANDIDATOS = [process.env.CHROME_PATH, '/Applications/Google Chrome.app/Co
   console.log('[Accesibilidad · zona pública]');
   const axe = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
   const pa = await (await navegador.newContext({ bypassCSP: true })).newPage();
-  await pa.route(SUPABASE + '/**', r => r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*' }, body: 'null' }));
-  for (const r of ['', '#/como-acceder', '#/herramientas', '#/autocuidado', '#/privacidad', '#/acceso', '#/activar-invitacion', '#/recuperar-acceso']) {
+  // convocatoria_vigente responde «sí» para revisar también el formulario de registro por enlace (F09).
+  await pa.route(SUPABASE + '/**', r => r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*' }, body: /convocatoria_vigente/.test(r.request().url()) ? 'true' : 'null' }));
+  for (const r of ['', '#/como-acceder', '#/herramientas', '#/autocuidado', '#/privacidad', '#/acceso', '#/activar-invitacion', '#/recuperar-acceso', '#/registro?c=abc', '#/verificar-correo?email=a%40b.co']) {
     for (const ancho of [1280, 375]) {
       await pa.setViewportSize({ width: ancho, height: 900 });
       await pa.goto(base + 'index.html' + r, { waitUntil: 'networkidle' }); await pa.waitForTimeout(200);

@@ -54,7 +54,7 @@ TH.ui = {
   /* ---------- Etiquetas de estado ---------- */
   badge(texto, tipo) { return '<span class="badge badge--' + (tipo || 'neutro') + '">' + esc(texto) + '</span>'; },
   badgeCatalogo(lista, id) { const x = TH.util.catalogo(lista, id); return this.badge(x ? x.nombre : (id || '—'), x ? x.badge : 'neutro'); },
-  badgeEstadoOrg(estado) { return estado === 'activa' ? this.badge('Activa', 'exito') : this.badge('Suspendida', 'error'); },
+  badgeEstadoOrg(estado) { return estado === 'activa' ? this.badge('Activa', 'exito') : estado === 'pendiente' ? this.badge('Pendiente de aprobación', 'alerta') : estado === 'rechazada' ? this.badge('Rechazada', 'neutro') : this.badge('Suspendida', 'error'); },
   badgeNivel(nivel) {
     if (!nivel) return this.badge('Sin datos', 'neutro');
     const m = { inicial: 'error', 'en-desarrollo': 'alerta', consolidado: 'info', avanzado: 'exito' };

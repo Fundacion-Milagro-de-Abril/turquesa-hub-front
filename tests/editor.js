@@ -34,7 +34,7 @@ const { crear } = require('./lib/entorno');
 
   console.log('[Módulos]');
   await h.ir('/fma/formacion');
-  ok(JSON.stringify(h.nav()) === JSON.stringify(['/fma/inicio', '/fma/organizaciones', '/fma/formacion', '/fma/contenidos', '/fma/equipo', '/fma/auditoria']), 'Menú FMA: formación y contenidos en el grupo editorial');
+  ok(JSON.stringify(h.nav()) === JSON.stringify(['/fma/inicio', '/fma/organizaciones', '/fma/registros', '/fma/formacion', '/fma/contenidos', '/fma/equipo', '/fma/auditoria']), 'Menú FMA: formación y contenidos en el grupo editorial');
   ok(/Gestión editorial de los módulos/.test(h.texto()) && M.ultimas().length === 4, 'Formación: pantalla editorial de rc4 con los 4 módulos leídos de la base');
   ok(TH.auth.tienePermiso('formacion:revisar-juridica') && TH.auth.tienePermiso('contenidos:revisar-psicosocial'), 'admin_fma tiene los permisos de revisión (MVP: un solo rol)');
 

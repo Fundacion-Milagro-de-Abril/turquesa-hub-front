@@ -3,6 +3,7 @@
    Pantallas del rol «fma» (admin_fma en la base de datos):
      - Tablero:        resumen de organizaciones e invitaciones.
      - Organizaciones: crear una organización con la invitación de su responsable, suspender o reactivar,
+                       (el registro por enlace y la aprobación están en registro-supabase.js, F09)
                        invitar de nuevo y anular invitaciones.
      - Trazabilidad:   registro de auditoría.
    Toda la seguridad la impone la base de datos (RLS y funciones): estas pantallas solo la usan.
@@ -25,6 +26,7 @@ window.TH = window.TH || {};
     { grupo: 'Plataforma' },
     { ruta: '/fma/inicio', texto: 'Tablero general', icono: 'tablero' },
     { ruta: '/fma/organizaciones', texto: 'Organizaciones', icono: 'edificio' },
+    { ruta: '/fma/registros', texto: 'Registros', icono: 'check' },
     { grupo: 'Editorial' },
     { ruta: '/fma/formacion', texto: 'Formación', icono: 'formacion' },
     { ruta: '/fma/contenidos', texto: 'Contenidos', icono: 'biblioteca' },
@@ -79,10 +81,11 @@ window.TH = window.TH || {};
   const estadoInv = (i) => i.estado === 'usada' ? TH.ui.badge('Usada', 'exito') : i.estado === 'anulada' ? TH.ui.badge('Anulada', 'neutro') : vigente(i) ? TH.ui.badge('Pendiente', 'info') : TH.ui.badge('Vencida', 'error');
 
   function inicio() {
-    const act = datos.orgs.filter(o => o.estado === 'activa').length; const sus = datos.orgs.length - act;
-    const pend = datos.invs.filter(vigente).length;
+    const act = datos.orgs.filter(o => o.estado === 'activa').length; const sus = datos.orgs.filter(o => o.estado === 'suspendida').length;
+    const pend = datos.invs.filter(vigente).length; const porRevisar = datos.orgs.filter(o => o.estado === 'pendiente').length;
     return TH.ui.encabezado('Tablero general', 'Resumen de la plataforma.', '<a class="btn btn--primario" href="#/fma/organizaciones">Gestionar organizaciones</a>') +
-      '<div class="grid grid--3">' + TH.ui.kpi('Organizaciones activas', act, '', 'turquesa') + TH.ui.kpi('Organizaciones suspendidas', sus, '', 'coral') + TH.ui.kpi('Invitaciones pendientes', pend, 'Vigentes y sin usar', 'violeta') + '</div>' +
+      (porRevisar ? TH.ui.alerta('alerta', porRevisar === 1 ? '1 registro por revisar' : porRevisar + ' registros por revisar', 'Hay organizaciones que se registraron con un enlace y esperan tu aprobación. <a href="#/fma/registros">Revisarlas</a>.') : '') +
+      '<div class="grid grid-4">' + TH.ui.kpi('Organizaciones activas', act, '', 'turquesa') + TH.ui.kpi('Registros por revisar', porRevisar, 'Esperan aprobación', 'naranja') + TH.ui.kpi('Organizaciones suspendidas', sus, '', 'coral') + TH.ui.kpi('Invitaciones pendientes', pend, 'Vigentes y sin usar', 'violeta') + '</div>' +
       (function () {
         const t = datos.tablero || {};
         const acceso = (ruta, icono, titulo, texto) => '<a class="card card--compacta" href="#' + ruta + '"><div class="flex items-center gap-3"><div class="icono-caja">' + TH.ui.icono(icono) + '</div><div><h3 class="card__titulo" style="font-size:var(--th-t-md)">' + esc(titulo) + '</h3><p class="card__sub mb-0">' + esc(texto) + '</p></div></div></a>';
@@ -94,6 +97,7 @@ window.TH = window.TH || {};
           (t.modulosPub ? '' : TH.ui.alerta('alerta', 'Aún no hay módulos publicados', 'Las organizaciones no pueden asignar formación hasta que publiques al menos un módulo en Formación (después de sus revisiones y aprobación).')) +
           '<h2 class="mt-5" style="font-size:var(--th-t-lg)">Accesos rápidos</h2><div class="grid grid-3">' +
           acceso('/fma/organizaciones', 'edificio', 'Organizaciones', 'Crear, invitar responsables, suspender y ver el detalle de cada una.') +
+          acceso('/fma/registros', 'check', 'Registros', 'Enlaces de registro y organizaciones por aprobar.') +
           acceso('/fma/formacion', 'formacion', 'Formación', 'Versiones, revisiones y publicación de los módulos.') +
           acceso('/fma/contenidos', 'biblioteca', 'Contenidos', 'Guías y fichas de la biblioteca.') +
           acceso('/fma/equipo', 'personas', 'Equipo FMA', 'Administradores de la plataforma.') +
@@ -102,12 +106,12 @@ window.TH = window.TH || {};
   }
 
   function organizaciones() {
-    const accion = (o) => '<a class="btn btn--terciario btn--sm" href="#/fma/organizaciones/detalle?id=' + esc(o.id) + '">Ver</a> <button type="button" class="btn btn--terciario btn--sm" data-action="fma-org-invitar" data-id="' + esc(o.id) + '" data-nombre="' + esc(o.nombre) + '">Invitar responsable</button> ' +
+    const accion = (o) => o.estado === 'pendiente' ? '<a class="btn btn--primario btn--sm" href="#/fma/registros">Revisar registro</a>' : '<a class="btn btn--terciario btn--sm" href="#/fma/organizaciones/detalle?id=' + esc(o.id) + '">Ver</a> <button type="button" class="btn btn--terciario btn--sm" data-action="fma-org-invitar" data-id="' + esc(o.id) + '" data-nombre="' + esc(o.nombre) + '">Invitar responsable</button> ' +
       (o.estado === 'activa'
         ? '<button type="button" class="btn btn--terciario btn--sm" data-action="fma-org-estado" data-id="' + esc(o.id) + '" data-estado="suspendida" data-nombre="' + esc(o.nombre) + '">Suspender</button>'
         : '<button type="button" class="btn btn--terciario btn--sm" data-action="fma-org-estado" data-id="' + esc(o.id) + '" data-estado="activa" data-nombre="' + esc(o.nombre) + '">Reactivar</button>');
     const nombreOrg = (id) => { const o = datos.orgs.find(x => x.id === id); return o ? o.nombre : '—'; };
-    return TH.ui.encabezado('Organizaciones', 'Crea organizaciones e invita a su responsable. Nadie se registra sin invitación.', '<button type="button" class="btn btn--primario" data-action="fma-org-nueva">Nueva organización</button>') +
+    return TH.ui.encabezado('Organizaciones', 'Crea organizaciones e invita a su responsable, o comparte un <a href="#/fma/registros">enlace de registro</a>. Nadie entra sin invitación o sin tu aprobación.', '<button type="button" class="btn btn--primario" data-action="fma-org-nueva">Nueva organización</button>') +
       TH.ui.tabla([
         { titulo: 'Organización', render: o => '<a href="#/fma/organizaciones/detalle?id=' + esc(o.id) + '"><strong>' + esc(o.nombre) + '</strong></a>' },
         { titulo: 'Identificación', render: o => esc((o.tipo_identificacion || '') + ' ' + (o.identificacion || '')) },
@@ -126,7 +130,7 @@ window.TH = window.TH || {};
       ], datos.invs, { caption: 'Invitaciones', vacioTitulo: 'Sin invitaciones', vacioTexto: 'Aparecerán aquí cuando invites a alguien.' });
   }
 
-  const ETIQUETAS = { 'sesion.inicio': 'Inicio de sesión', 'cuenta.activada': 'Cuenta activada', 'organizacion.crear': 'Organización creada', 'organizacion.estado': 'Estado de organización', 'invitacion.crear': 'Invitación creada', 'invitacion.anular': 'Invitación anulada', 'perfil.cambio': 'Cambio en un perfil' };
+  const ETIQUETAS = { 'sesion.inicio': 'Inicio de sesión', 'cuenta.activada': 'Cuenta activada', 'organizacion.crear': 'Organización creada', 'organizacion.estado': 'Estado de organización', 'invitacion.crear': 'Invitación creada', 'invitacion.anular': 'Invitación anulada', 'perfil.cambio': 'Cambio en un perfil', 'organizacion.registro': 'Registro por enlace', 'convocatoria.crear': 'Enlace de registro creado', 'convocatoria.anular': 'Enlace de registro anulado' };
   function auditoria() {
     const orgNombre = (id) => { const o = datos.orgs.find(x => x.id === id); return o ? o.nombre : (id ? id.slice(0, 8) : '—'); };
     return TH.ui.encabezado('Trazabilidad', 'Últimos 200 eventos. Nadie puede modificar ni borrar este registro.') +
@@ -195,7 +199,7 @@ window.TH = window.TH || {};
     const fm = D.formacion; const formTxt = fm ? fm.colaboradores + ' colaboradores activos · ' + fm.completados + ' de ' + fm.asignaciones + ' módulos asignados completados.' : '—';
     const responsables = D.personas.filter(p => p.rol === 'organizacion'); const colabs = D.personas.filter(p => p.rol === 'colaborador');
     return TH.ui.migas([{ texto: 'Organizaciones', ruta: '/fma/organizaciones' }, { texto: o.nombre }]) +
-      TH.ui.encabezado(o.nombre, esc((o.tipo_identificacion || '') + ' ' + (o.identificacion || '')) + ' · ' + (o.estado === 'activa' ? 'Activa' : 'Suspendida'),
+      TH.ui.encabezado(o.nombre, esc((o.tipo_identificacion || '') + ' ' + (o.identificacion || '')) + ' · ' + ({ activa: 'Activa', suspendida: 'Suspendida', pendiente: 'Pendiente de aprobación', rechazada: 'Rechazada' }[o.estado] || o.estado),
         '<button type="button" class="btn btn--primario" data-action="fma-org-invitar" data-id="' + esc(o.id) + '" data-nombre="' + esc(o.nombre) + '">Invitar responsable</button>') +
       '<div class="grid grid-3 mb-4">' +
         '<div class="card"><h3 class="card__titulo">Autodiagnóstico</h3><p class="texto-sm">' + esc(diagTxt) + '</p></div>' +

@@ -283,7 +283,7 @@ window.TH = window.TH || {};
       const r = await TH.auth.activarInvitacion(d.codigo, { email: d.email, nombre: d.nombre, area: d.area, clave: d.clave, aceptaDatos: d.aceptaDatos, aceptaCondiciones: d.aceptaCondiciones, documentoDatosId: d.documentoDatosId || '', documentoCondicionesId: d.documentoCondicionesId || '' });
       TH.ui.ocupado(form, false);
       if (!r.ok) { TH.ui.errorApi(r, form); return; }
-      if (r.verificacion === 'pendiente') { TH.ui.toast('Cuenta creada. Revisa tu correo y abre el enlace para verificarla; después ingresa.', 'exito'); TH.router.ir('/acceso'); return; }
+      if (r.verificacion === 'pendiente') { TH.ui.toast('Cuenta creada. Te enviamos un código de 6 números a tu correo.', 'exito'); TH.router.ir('/verificar-correo?email=' + encodeURIComponent(r.usuario.email)); return; }
       const ing = await TH.auth.ingresar(r.usuario.email, d.clave); if (ing.ok) { TH.ui.toast('Acceso activado. Bienvenido/a, ' + r.usuario.nombre + '.', 'exito'); TH.router.ir('/colaborador/inicio'); } else TH.router.ir('/acceso?mensaje=registro');
     },
     async 'sello-interes'(form) {

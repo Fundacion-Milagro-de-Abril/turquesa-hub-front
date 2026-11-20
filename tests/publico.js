@@ -22,7 +22,7 @@ const { crear } = require('./lib/entorno');
   ok(JSON.stringify(menu) === JSON.stringify(['#/', '#/herramientas', '#/autocuidado', '#/activar-invitacion', '#/acceso']), 'Menú público: inicio, herramientas, autocuidado, activar invitación e ingresar');
 
   console.log('[Rutas de rc4 reemplazadas]');
-  await h.ir('/registro'); ok(/Cómo acceder/.test(h.texto()) && /por invitación/.test(h.texto()) && !h.q('form'), '#/registro explica el acceso por invitación (sin formulario)');
+  await h.ir('/registro'); ok(/Cómo acceder/.test(h.texto()) && /enlace de registro/.test(h.texto()) && !h.q('form'), '#/registro sin enlace explica cómo acceder (sin formulario: el registro necesita el enlace de FMA)');
   await h.ir('/sello-turquesa'); ok(/Turquesa Hub/.test(h.texto()) && !h.q('form'), '#/sello-turquesa lleva a la portada (sin formulario de interés)');
   await h.ir('/como-acceder'); ok(!!h.q('a[href^="mailto:sai@fundacionmilagrodeabril.org"]') && !h.q('form'), 'Cómo acceder: contacto por correo, sin formularios ni datos');
 

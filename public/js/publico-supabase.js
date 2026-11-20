@@ -1,6 +1,6 @@
 /* ============================================================
    TURQUESA HUB · ZONA PÚBLICA DE PRODUCCIÓN (F06)
-   Reemplaza las páginas públicas de rc4 que dependían de módulos apagados (registro abierto, Sello Turquesa,
+   Reemplaza las páginas públicas de rc4 que dependían de módulos apagados (registro abierto —ahora por enlace, F09—, Sello Turquesa,
    documentos jurídicos de borrador) por: portada, cómo acceder, herramientas de FMA, autocuidado y privacidad.
    Reglas: no pide ni guarda datos de quien visita (sin formularios, sin cookies, sin contadores); los enlaces a
    herramientas abren los sitios de FMA. Solo /privacidad consulta a Supabase, para mostrar el aviso de datos vigente.
@@ -59,13 +59,15 @@ window.TH = window.TH || {};
 
   function comoAcceder() {
     return '<section class="seccion" style="max-width:760px"><div class="seccion__eyebrow">Acceso</div><h1>Cómo acceder a Turquesa Hub</h1>' +
-      '<p class="texto-2">Turquesa Hub funciona <strong>por invitación</strong>: no hay registro abierto.</p><ol>' +
-      '<li><strong>Organizaciones.</strong> Si tu organización quiere participar, escríbenos a <a href="mailto:' + CONTACTO + '">' + CONTACTO + '</a>. La Fundación crea su espacio e invita a la persona responsable.</li>' +
-      '<li><strong>Colaboradores.</strong> Tu organización te envía un enlace de invitación. Ábrelo, crea tu contraseña y verifica tu correo.</li>' +
+      '<p class="texto-2">Turquesa Hub es para las organizaciones aliadas de la Fundación: se entra con un <strong>enlace</strong> que comparte la Fundación, no hay registro abierto.</p><ol>' +
+      '<li><strong>Organizaciones.</strong> La Fundación te comparte un <strong>enlace de registro</strong>. Ábrelo, llena los datos de tu organización, escribe el código de 6 números que te llega al correo y espera la aprobación de la Fundación. Si aún no tienes el enlace, escríbenos a <a href="mailto:' + CONTACTO + '">' + CONTACTO + '</a>.</li>' +
+      '<li><strong>Colaboradores.</strong> Tu organización te envía un enlace de invitación. Ábrelo, crea tu contraseña y escribe el código que te llega al correo.</li>' +
       '<li><strong>Si ya tienes cuenta,</strong> entra con tu correo y contraseña.</li></ol>' +
       '<div class="flex gap-3 wrap mt-4"><a class="btn btn--primario" href="#/acceso">Ingresar</a><a class="btn btn--secundario" href="#/activar-invitacion">Tengo una invitación</a></div>' +
-      '<p class="texto-xs texto-2 mt-4">Las invitaciones duran 7 días y solo sirven con el correo al que fueron enviadas. Si la tuya venció, pide una nueva a quien te invitó.</p></section>';
+      '<p class="texto-xs texto-2 mt-4">Las invitaciones duran 7 días y solo sirven con el correo al que fueron enviadas. Los enlaces de registro tienen fecha de vencimiento y cupos. Si el tuyo ya no sirve, pide uno nuevo.</p></section>';
   }
+
+  TH.publicoComoAcceder = comoAcceder;   // #/registro sin enlace muestra esta página (registro-supabase.js)
 
   function herramientas() {
     return '<section class="seccion"><div class="seccion__eyebrow">Recursos de la Fundación</div><h1>Herramientas</h1>' +
@@ -106,7 +108,6 @@ window.TH = window.TH || {};
     // Páginas de rc4 que dependían de módulos apagados: se reemplazan por su equivalente vigente.
     '/conocer-turquesa-hub': { layout: 'publico', titulo: 'Inicio', render: portada },
     '/sello-turquesa': { layout: 'publico', titulo: 'Inicio', render: portada },
-    '/registro': { layout: 'publico', titulo: 'Cómo acceder', render: comoAcceder },
     '/condiciones': { layout: 'publico', titulo: 'Privacidad', render: privacidad },
     '/aviso-registro': { layout: 'publico', titulo: 'Privacidad', render: privacidad }
   });

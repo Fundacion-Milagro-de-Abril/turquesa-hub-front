@@ -5,8 +5,9 @@
 
    Qué hace:
      - Inicio y cierre de sesión, recuperación y cambio de contraseña con Supabase Auth.
-     - Alta por invitación: signUp envía el código y la versión del aviso en los metadatos; el trigger
-       handle_new_user de la base de datos valida TODO (el navegador no decide nada).
+     - Alta por invitación o por enlace de registro (F09): signUp envía el código y la versión del aviso en los
+       metadatos; el trigger handle_new_user de la base de datos valida TODO (el navegador no decide nada).
+       El correo se confirma con un código de 6 números (verificarCodigo).
      - Resuelve el rol y la organización LEYENDO la base de datos (perfiles y organizaciones, protegidas por RLS).
        El navegador nunca envía organizacion_id ni rol.
      - La sesión de Supabase se guarda en sessionStorage (se pierde al cerrar la pestaña), nunca en localStorage.
@@ -84,28 +85,87 @@ window.TH = window.TH || {};
     if (/REGISTRO_NO_DISPONIBLE/.test(m)) return { codigo: 'INFORMACION_NO_PUBLICADA', error: 'La activación aún no está habilitada: la Fundación Milagro de Abril no ha publicado el aviso de tratamiento de datos.' };
     if (/AVISO_NO_ACEPTADO/.test(m)) return { codigo: 'AVISO_NO_ACEPTADO', error: 'Debes aceptar la versión vigente del aviso de tratamiento de datos.' };
     if (/INVITACION_INVALIDA/.test(m)) return { codigo: 'INVITACION_INVALIDA', error: 'La invitación no es válida: revisa el código y que uses el correo al que fue enviada, o pide una nueva.' };
+    if (/CONVOCATORIA_INVALIDA/.test(m)) return { codigo: 'CONVOCATORIA_INVALIDA', error: 'El enlace de registro ya no sirve: venció, se anuló o se completaron los cupos. Pide uno nuevo a la Fundación Milagro de Abril.' };
+    if (/ORGANIZACION_EXISTENTE/.test(m)) return { codigo: 'ORGANIZACION_EXISTENTE', error: 'Ya hay una organización registrada con esa identificación. Si necesitas acceso, escribe a la Fundación Milagro de Abril.', errores: { identificacion: 'Esta identificación ya está registrada.' } };
+    if (/DATOS_ORGANIZACION/.test(m)) return { codigo: 'DATOS_ORGANIZACION', error: /dígitos/.test(m) ? 'Escribe el número de identificación completo (al menos 5 dígitos).' : 'Revisa los datos de la organización.', errores: /dígitos/.test(m) ? { identificacion: 'Al menos 5 dígitos.' } : {} };
     if (/NOMBRE_REQUERIDO/.test(m)) return { codigo: 'NOMBRE_REQUERIDO', error: 'Indica tu nombre.' };
     if (/already registered|already been registered|user_already_exists/i.test(m)) return { codigo: 'CUENTA_EXISTENTE', error: 'Ya existe una cuenta con ese correo. Ingresa con tus credenciales.' };
     if (/weak|password/i.test(m)) return { codigo: 'CLAVE_DEBIL', error: 'La contraseña no cumple los requisitos de seguridad.' };
     return { codigo: 'ERROR_ALTA', error: 'No fue posible activar la cuenta. Intenta de nuevo o contacta a la Fundación Milagro de Abril.' };
   }
 
+  /* Registro por enlace (F09): una organización recién registrada no tiene acceso hasta que FMA la aprueba. */
+  const MSG_REGISTRO = {
+    pendiente: 'Tu registro está en revisión. La Fundación Milagro de Abril lo aprobará pronto; después podrás ingresar con tu correo y contraseña.',
+    rechazada: 'La Fundación Milagro de Abril no aprobó este registro. Si crees que es un error, escribe a sai@fundacionmilagrodeabril.org.'
+  };
+  /** Estado del registro de la propia organización ('pendiente' o 'rechazada'); null en cualquier otro caso. */
+  async function estadoRegistro() {
+    try { const r = await sb.rpc('estado_mi_registro'); const e = r && !r.error ? r.data : null; return e === 'pendiente' || e === 'rechazada' ? e : null; }
+    catch (_) { return null; }
+  }
+  /** Supabase no da error si el correo ya tiene cuenta confirmada: devuelve un usuario sin identidades y no envía correo. */
+  const cuentaYaExistia = (data) => !!(data && data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0);
+  /** Tras confirmar el correo: abre la sesión si hay acceso; si la organización está en revisión o rechazada, lo informa. */
+  async function entrarOInformar(authUser) {
+    const cargado = await cargarUsuario(authUser);
+    if (cargado) { abrir(cargado); sb.rpc('registrar_inicio_sesion').then(() => { }, () => { }); return { ok: true, usuario: cargado.usuario }; }
+    const estado = await estadoRegistro();
+    await sb.auth.signOut(); cerrarLocal();
+    return estado ? { ok: true, estado, mensaje: MSG_REGISTRO[estado] } : { ok: false, error: MSG_SIN_ACCESO };
+  }
+
   const adaptador = {
     nombre: 'supabase',
 
-    /** No hay registro abierto de organizaciones: cada cuenta nace de una invitación. */
-    async registrarOrganizacion() {
-      return { ok: false, error: 'El registro de organizaciones es solo por invitación de la Fundación Milagro de Abril. Escríbenos para solicitarla.' };
+    /** Registro de una organización con el enlace de convocatoria que comparte FMA (F09). No hay registro sin enlace:
+     *  el trigger handle_new_user valida enlace, cupo, aviso y datos; la organización nace PENDIENTE de aprobación. */
+    async registrarOrganizacion(d) {
+      const codigo = String((d && d.convocatoria) || '').trim();
+      if (!codigo) return { ok: false, error: 'Para registrar tu organización necesitas el enlace de registro que comparte la Fundación Milagro de Abril.' };
+      const aviso = TH.supabaseAviso && TH.supabaseAviso.version ? TH.supabaseAviso : await cargarAviso();
+      if (!aviso) return { ok: false, codigo: 'INFORMACION_NO_PUBLICADA', error: 'El registro aún no está habilitado: la Fundación Milagro de Abril no ha publicado el aviso de tratamiento de datos.' };
+      if (!d.aceptaDatos) return { ok: false, error: 'Debes autorizar el tratamiento de tus datos personales.', errores: { aceptaDatos: 'Marca la casilla de autorización.' } };
+      const e = TH.auth.validarClave(d.clave); if (e) return { ok: false, error: e, errores: { clave: e } };
+      const email = (d.email || '').trim();
+      const t = (x) => String(x || '').trim();
+      const { data, error } = await sb.auth.signUp({
+        email, password: d.clave,
+        options: {
+          data: {
+            codigo_convocatoria: codigo, version_aviso: aviso.version, nombre: t(d.responsable), cargo: t(d.cargo),
+            org_nombre: t(d.nombre), org_tipo_identificacion: t(d.tipoIdentificacion), org_identificacion: t(d.identificacion),
+            org_sector: t(d.sector), org_tamano: t(d.tamano), org_departamento: t(d.departamento), org_municipio: t(d.municipio)
+          }
+        }
+      });
+      if (error) return Object.assign({ ok: false }, mensajeAlta(error));
+      if (cuentaYaExistia(data)) return { ok: false, codigo: 'CUENTA_EXISTENTE', error: 'Ya existe una cuenta con ese correo. Ingresa con tus credenciales o recupera tu contraseña.', errores: { email: 'Ya existe una cuenta con este correo.' } };
+      return { ok: true, usuario: { email, nombre: t(d.responsable) }, verificacion: 'pendiente' };
+    },
+
+    /** Confirma el correo con el código de 6 números que llega por correo. Si la cuenta tiene acceso, abre la sesión;
+     *  si la organización está en revisión (o fue rechazada), lo informa y no deja sesión abierta. */
+    async verificarCodigo(email, codigo) {
+      const token = String(codigo || '').replace(/\D/g, '');
+      if (!/^\d{6}$/.test(token)) return { ok: false, error: 'Escribe los 6 números del código.', errores: { codigo: 'Deben ser 6 números.' } };
+      const { data, error } = await sb.auth.verifyOtp({ email: (email || '').trim(), token, type: 'signup' });
+      if (error || !data || !data.user) return { ok: false, codigo: 'CODIGO_INVALIDO', error: 'El código no es correcto o ya venció. Revísalo o pide uno nuevo.', errores: { codigo: 'Código incorrecto o vencido.' } };
+      return entrarOInformar(data.user);
     },
 
     async ingresar(email, clave) {
       const { data, error } = await sb.auth.signInWithPassword({ email: (email || '').trim(), password: clave });
       if (error) {
-        if (error.code === 'email_not_confirmed') return { ok: false, error: 'Debes verificar tu correo antes de ingresar. Revisa tu bandeja de entrada.', codigo: 'CORREO_NO_VERIFICADO' };
+        if (error.code === 'email_not_confirmed') return { ok: false, error: 'Aún no has confirmado tu correo. Escribe el código de 6 números que te enviamos.', codigo: 'CORREO_NO_VERIFICADO' };
         return { ok: false, error: MSG_CREDENCIALES };
       }
       const cargado = await cargarUsuario(data.user);
-      if (!cargado) { await sb.auth.signOut(); cerrarLocal(); return { ok: false, error: MSG_SIN_ACCESO }; }
+      if (!cargado) {
+        const estado = await estadoRegistro();
+        await sb.auth.signOut(); cerrarLocal();
+        return { ok: false, error: estado ? MSG_REGISTRO[estado] : MSG_SIN_ACCESO, codigo: estado ? 'REGISTRO_' + estado.toUpperCase() : 'SIN_ACCESO' };
+      }
       abrir(cargado);
       sb.rpc('registrar_inicio_sesion').then(() => { }, () => { });   // auditoría: no debe frenar el ingreso
       return { ok: true, usuario: cargado.usuario };
@@ -123,11 +183,13 @@ window.TH = window.TH || {};
 
     async salir() { await sb.auth.signOut(); cerrarLocal(); return { ok: true }; },
 
+    /** Reenvía el código de 6 números. */
     async solicitarVerificacion(email) {
-      await sb.auth.resend({ type: 'signup', email: (email || '').trim(), options: { emailRedirectTo: location.origin + '/' } });
+      const { error } = await sb.auth.resend({ type: 'signup', email: (email || '').trim() });
+      if (error && /rate|seconds|frequency/i.test(error.message || '')) return { ok: false, error: 'Espera un minuto antes de pedir otro código.' };
       return { ok: true };   // misma respuesta exista o no la cuenta
     },
-    async verificarCorreo() { return { ok: true }; },   // Supabase confirma el correo al abrir el enlace (?code=)
+    async verificarCorreo() { return { ok: true }; },   // la confirmación se hace con verificarCodigo (código de 6 números)
 
     async solicitarRecuperacion(email) {
       await sb.auth.resetPasswordForEmail((email || '').trim(), { redirectTo: location.origin + '/#/recuperar-acceso?token=sb' });
@@ -167,7 +229,8 @@ window.TH = window.TH || {};
         }
       });
       if (error) return Object.assign({ ok: false }, mensajeAlta(error));
-      // Con confirmación de correo activa no hay sesión hasta que la persona abra el enlace.
+      if (cuentaYaExistia(data)) return { ok: false, codigo: 'CUENTA_EXISTENTE', error: 'Ya existe una cuenta con ese correo. Ingresa con tus credenciales o recupera tu contraseña.' };
+      // Con confirmación de correo activa no hay sesión hasta que la persona escriba el código de 6 números.
       return { ok: true, usuario: { email, nombre: (datos.nombre || '').trim() }, verificacion: data && data.session ? 'no-requerida' : 'pendiente' };
     }
   };
