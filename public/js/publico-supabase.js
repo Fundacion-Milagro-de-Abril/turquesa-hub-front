@@ -13,7 +13,6 @@ window.TH = window.TH || {};
   const esc = TH.util.esc; const ic = (n) => TH.ui.icono(n);
   const CONTACTO = 'sai@fundacionmilagrodeabril.org';
   const HERR = 'https://herramientas.fundacionmilagrodeabril.org/';
-  const provisional = '<span class="etiqueta etiqueta--referencial">Contenido provisional</span>';
   const externo = (url, texto) => '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(texto) + ' <span class="sr-only">(abre en una pestaña nueva)</span></a>';
 
   /* Herramientas existentes de FMA (verificadas el 14-nov en sus subdominios). */
@@ -46,7 +45,7 @@ window.TH = window.TH || {};
       '<div class="portada__cuerpo"><div>' +
       '<p class="portada__texto">Un espacio privado y guiado para las organizaciones aliadas de la Fundación: conocer su punto de partida, planear acciones con responsables y fechas, y formar a sus equipos.</p>' +
       '<div class="hero__acciones"><a class="btn btn--primario btn--lg" href="#/acceso">Ingresar ' + ic('flecha') + '</a><a class="btn btn--secundario btn--lg" href="#/como-acceder">Cómo acceder</a></div>' +
-      '<p class="hero__nota">' + provisional + ' Textos de la zona pública pendientes de validación por la Dirección de la Fundación.</p></div></div></section>' +
+      '</div></div></section>' +
       '<section class="seccion"><div class="seccion__encabezado"><div class="seccion__eyebrow">Cómo funciona</div><h2>Tres pasos en un mismo espacio</h2></div><div class="grid grid-3">' +
       '<div class="feature"><div class="icono-caja">' + ic('diagnostico') + '</div><h3>Autodiagnóstico</h3><p>La organización responde preguntas guiadas en seis dimensiones y obtiene una lectura orientativa de dónde está.</p></div>' +
       '<div class="feature"><div class="icono-caja icono-caja--violeta">' + ic('plan') + '</div><h3>Plan de acción</h3><p>A partir de sus brechas define acciones con responsables, fechas, metas e indicadores, y les hace seguimiento.</p></div>' +
@@ -81,7 +80,7 @@ window.TH = window.TH || {};
     const auto = (HERRAMIENTAS.find(g => g.grupo === 'Autocuidado') || { items: [] }).items;
     return '<section class="seccion" style="max-width:860px"><div class="seccion__eyebrow">Bienestar</div><h1>Autocuidado</h1>' +
       '<p class="texto-2">Ideas sencillas para cuidarte mientras participas en procesos de prevención.</p>' +
-      piezas.map(p => '<div class="card mt-4"><h2 class="card__titulo">' + esc(p.titulo) + '</h2><p>' + esc(p.texto) + '</p>' + (p.provisional ? '<p class="mb-0">' + provisional + ' <span class="texto-xs texto-2">Pendiente de revisión psicosocial de la Fundación.</span></p>' : '') + '</div>').join('') +
+      piezas.map(p => '<div class="card mt-4"><h2 class="card__titulo">' + esc(p.titulo) + '</h2><p>' + esc(p.texto) + '</p></div>').join('') +
       '<h2 class="mt-5" style="font-size:var(--th-t-lg)">Herramientas de autocuidado de la Fundación</h2><ul>' + auto.map(x => '<li>' + externo(x.url, x.t) + '</li>').join('') + '</ul>' +
       TH.ui.alerta('info', 'Si necesitas apoyo', 'Consulta ' + externo(HERR + 'rutas-atencion.html', 'las rutas de atención') + ' y ' + externo(HERR + 'directorio-rutas.html', 'el directorio verificado por la Fundación') + '.') + '</section>';
   }

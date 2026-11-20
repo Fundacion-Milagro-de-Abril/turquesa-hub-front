@@ -17,7 +17,7 @@ const { crear } = require('./lib/entorno');
   ok(enlaces().includes('#/acceso') && /Ingresar/.test(t), 'Ofrece «Ingresar» a la zona privada');
   ok(!enlaces().includes('#/registro') && !/Registrar mi organización|Registrarse/.test(t), 'No ofrece registro abierto (el acceso es por invitación)');
   ok(!enlaces().includes('#/sello-turquesa'), 'Sin enlaces al Sello Turquesa (módulo apagado)');
-  ok(/no recibe denuncias/i.test(t) && /Contenido provisional/.test(t), 'Aclara que no es un canal de denuncias y marca el texto provisional');
+  ok(/no recibe denuncias/i.test(t) && !/provisional|pendientes de validación/i.test(t), 'Aclara que no es un canal de denuncias, sin marcas de contenido provisional (textos validados)');
   const menu = [...w.document.querySelectorAll('#nav-publico a')].map(a => a.getAttribute('href'));
   ok(JSON.stringify(menu) === JSON.stringify(['#/', '#/herramientas', '#/autocuidado', '#/activar-invitacion', '#/acceso']), 'Menú público: inicio, herramientas, autocuidado, activar invitación e ingresar');
 
@@ -32,7 +32,7 @@ const { crear } = require('./lib/entorno');
   ok(ext.length === 7, 'Herramientas: 7 enlaces a herramientas de FMA');
   ok(ext.every(a => /^https:\/\/[a-z]+\.fundacionmilagrodeabril\.org\//.test(a.href) && /noopener/.test(a.rel)), 'Todos abren su subdominio de FMA por HTTPS, en pestaña nueva y con rel="noopener"');
   await h.ir('/autocuidado');
-  ok(w.document.querySelectorAll('#app .etiqueta--referencial').length === TH.data.autocuidado.filter(p => p.provisional).length, 'Autocuidado: cada pieza provisional lleva la marca «Contenido provisional»');
+  ok(TH.data.autocuidado.length === 3 && w.document.querySelectorAll('#app .card').length === 3 && !w.document.querySelector('#app .etiqueta--referencial') && !/provisional|pendiente de revisión/i.test(h.texto()), 'Autocuidado: las 3 piezas sin marcas de contenido provisional (textos validados)');
   ok(/Mapa emocional/.test(h.texto()) && /rutas de atención/.test(h.texto()), 'Autocuidado enlaza las herramientas de autocuidado y las rutas de atención');
 
   console.log('[Privacidad y datos]');
